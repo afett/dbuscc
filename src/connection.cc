@@ -26,7 +26,8 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <dbuscc/glue/message.h>
+#include <dbuscc/glue/call-message.h>
+#include <dbuscc/glue/pending-call.h>
 #include <dbuscc/glue/connection.h>
 
 #include "xassert.h"
@@ -39,9 +40,11 @@ public:
 	connection(DBusConnection *);
 	~connection();
 	bool send(message_ptr const&);
+	pending_call_ptr call(call_message_ptr const&);
 	glue::connection & glue();
 	DBusConnection *raw();
 	bool send(DBusMessage *);
+	DBusPendingCall *call(DBusMessage *);
 
 protected:
 	DBusConnection *raw_;
@@ -104,6 +107,26 @@ bool connection::send(DBusMessage *msg)
 	// we don't pass in the serial as sending will set the serial
 	// on the message and we can get it from there
 	return dbus_connection_send(raw_, msg, NULL);
+}
+
+pending_call_ptr connection::call(call_message_ptr const& msg)
+{
+	DBUSCC_ASSERT(msg);
+	return glue::pending_call::create(call(msg->glue().raw()));
+}
+
+DBusPendingCall *connection::call(DBusMessage *msg)
+{
+	DBUSCC_ASSERT(msg);
+	DBusPendingCall *pending_return(0);
+	bool success(dbus_connection_send_with_reply(
+		raw_, msg, &pending_return, -1));
+	if (!success) {
+		return NULL;
+	}
+
+	DBUSCC_ASSERT(pending_return);
+	return pending_return;
 }
 
 connection::~connection()

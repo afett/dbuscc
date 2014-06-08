@@ -38,6 +38,7 @@ public:
 	virtual ~connection() {}
 	virtual void close() = 0;
 	virtual bool send(message_ptr const&) = 0;
+	virtual pending_call_ptr call(call_message_ptr const&) = 0;
 	virtual glue::connection & glue() = 0;
 };
 
