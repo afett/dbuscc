@@ -26,6 +26,7 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <dbuscc/glue/message.h>
 #include <dbuscc/glue/connection.h>
 
 #include "xassert.h"
@@ -37,8 +38,10 @@ class connection : public glue::connection {
 public:
 	connection(DBusConnection *);
 	~connection();
+	bool send(message_ptr const&);
 	glue::connection & glue();
 	DBusConnection *raw();
+	bool send(DBusMessage *);
 
 protected:
 	DBusConnection *raw_;
@@ -87,6 +90,20 @@ private_connection::~private_connection()
 void private_connection::close()
 {
 	dbus_connection_close(raw_);
+}
+
+bool connection::send(message_ptr const& msg)
+{
+	DBUSCC_ASSERT(msg);
+	return send(msg->glue().raw());
+}
+
+bool connection::send(DBusMessage *msg)
+{
+	DBUSCC_ASSERT(msg);
+	// we don't pass in the serial as sending will set the serial
+	// on the message and we can get it from there
+	return dbus_connection_send(raw_, msg, NULL);
 }
 
 connection::~connection()
