@@ -26,50 +26,33 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DBUSCC_POINTER_H
-#define DBUSCC_POINTER_H
+#ifndef DBUSCC_ERROR_H
+#define DBUSCC_ERROR_H
 
-#ifdef DBUSSCC_USE_BOOST_PTR
-#include <boost/shared_ptr.hpp>
-#define DBUSCC_SHARED_PTR(type) boost::shared_ptr<type>
-#define DBUSCC_SCOPED_PTR(type) boost::scoped_ptr<type>
-#else
-#include <tr1/memory>
-#define DBUSCC_SHARED_PTR(type) std::tr1::shared_ptr<type>
-#define DBUSCC_SCOPED_PTR(type) std::auto_ptr<type>
-#endif
+#include <string>
+#include <dbuscc/common.h>
 
 namespace dbuscc {
 
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
+class error {
+public:
+	error();
 
-typedef DBUSCC_SHARED_PTR(connection) connection_ptr;
-typedef DBUSCC_SHARED_PTR(message) message_ptr;
-typedef DBUSCC_SHARED_PTR(error_message) error_message_ptr;
-typedef DBUSCC_SHARED_PTR(call_message) call_message_ptr;
-typedef DBUSCC_SHARED_PTR(return_message) return_message_ptr;
-typedef DBUSCC_SHARED_PTR(signal_message) signal_message_ptr;
-typedef DBUSCC_SHARED_PTR(pending_call) pending_call_ptr;
+	typedef bool (error::*unspecified_boolean_type)() const;
+	operator unspecified_boolean_type() const
+	{ return is_set() ? &error::is_set : 0; }
 
-namespace glue {
+	bool is_set() const;
+	std::string name() const;
+	std::string message() const;
 
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
+	glue::error & glue() const;
+private:
+	error(error const&); // = deleted
+	error & operator=(error const&); // = deleted
 
-}
+	DBUSCC_SCOPED_PTR(glue::error) impl_;
+};
 
 }
 

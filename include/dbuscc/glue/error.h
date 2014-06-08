@@ -25,52 +25,38 @@
 	ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
+#ifndef DBUSCC_GLUE_ERROR_H
+#define DBUSCC_GLUE_ERROR_H
 
-#ifndef DBUSCC_POINTER_H
-#define DBUSCC_POINTER_H
+#include <dbus/dbus.h>
 
-#ifdef DBUSSCC_USE_BOOST_PTR
-#include <boost/shared_ptr.hpp>
-#define DBUSCC_SHARED_PTR(type) boost::shared_ptr<type>
-#define DBUSCC_SCOPED_PTR(type) boost::scoped_ptr<type>
-#else
-#include <tr1/memory>
-#define DBUSCC_SHARED_PTR(type) std::tr1::shared_ptr<type>
-#define DBUSCC_SCOPED_PTR(type) std::auto_ptr<type>
-#endif
+// not required here but it's usually needed
+#include <dbuscc/error.h>
 
 namespace dbuscc {
-
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-
-typedef DBUSCC_SHARED_PTR(connection) connection_ptr;
-typedef DBUSCC_SHARED_PTR(message) message_ptr;
-typedef DBUSCC_SHARED_PTR(error_message) error_message_ptr;
-typedef DBUSCC_SHARED_PTR(call_message) call_message_ptr;
-typedef DBUSCC_SHARED_PTR(return_message) return_message_ptr;
-typedef DBUSCC_SHARED_PTR(signal_message) signal_message_ptr;
-typedef DBUSCC_SHARED_PTR(pending_call) pending_call_ptr;
-
 namespace glue {
 
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
+class error {
+public:
+	error();
+	~error();
 
+	DBusError *raw()
+	{
+		return &raw_;
+	}
+private:
+	error(error const&); // = deleted
+	error & operator=(error const&); // = deleted
+
+	DBusError raw_;
+};
+
+static inline DBusError *err(dbuscc::error const& e)
+{
+	return e.glue().raw();
 }
 
-}
+}}
 
 #endif

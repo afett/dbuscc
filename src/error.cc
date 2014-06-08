@@ -26,51 +26,48 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DBUSCC_POINTER_H
-#define DBUSCC_POINTER_H
-
-#ifdef DBUSSCC_USE_BOOST_PTR
-#include <boost/shared_ptr.hpp>
-#define DBUSCC_SHARED_PTR(type) boost::shared_ptr<type>
-#define DBUSCC_SCOPED_PTR(type) boost::scoped_ptr<type>
-#else
-#include <tr1/memory>
-#define DBUSCC_SHARED_PTR(type) std::tr1::shared_ptr<type>
-#define DBUSCC_SCOPED_PTR(type) std::auto_ptr<type>
-#endif
+#include <dbuscc/error.h>
+#include <dbuscc/glue/error.h>
 
 namespace dbuscc {
 
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
+error::error()
+:
+	impl_(new glue::error())
+{ }
 
-typedef DBUSCC_SHARED_PTR(connection) connection_ptr;
-typedef DBUSCC_SHARED_PTR(message) message_ptr;
-typedef DBUSCC_SHARED_PTR(error_message) error_message_ptr;
-typedef DBUSCC_SHARED_PTR(call_message) call_message_ptr;
-typedef DBUSCC_SHARED_PTR(return_message) return_message_ptr;
-typedef DBUSCC_SHARED_PTR(signal_message) signal_message_ptr;
-typedef DBUSCC_SHARED_PTR(pending_call) pending_call_ptr;
+bool error::is_set() const
+{
+	return dbus_error_is_set(impl_->raw());
+}
+
+std::string error::name() const
+{
+	return impl_->raw()->name;
+}
+
+std::string error::message() const
+{
+	return impl_->raw()->message;
+}
+
+glue::error & error::glue() const
+{
+	return *impl_;
+}
 
 namespace glue {
 
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-
+error::error()
+{
+	dbus_error_init(&raw_);
 }
 
+error::~error()
+{
+	if (dbus_error_is_set(&raw_)) {
+		dbus_error_free(&raw_);
+	}
 }
 
-#endif
+}}
