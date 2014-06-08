@@ -40,8 +40,21 @@ public:
 	glue::connection & glue();
 	DBusConnection *raw();
 
-private:
+protected:
 	DBusConnection *raw_;
+};
+
+class shared_connection : public connection {
+public:
+	shared_connection(DBusConnection *);
+	void close();
+};
+
+class private_connection : public connection {
+public:
+	~private_connection();
+	private_connection(DBusConnection *);
+	void close();
 };
 
 connection::connection(DBusConnection *raw)
@@ -49,6 +62,31 @@ connection::connection(DBusConnection *raw)
 	raw_(raw)
 {
 	DBUSCC_ASSERT(raw_);
+}
+
+shared_connection::shared_connection(DBusConnection *raw)
+:
+	connection(raw)
+{ }
+
+void shared_connection::close()
+{
+	DBUSCC_ASSERT(false && "attempt to close a shared connection");
+}
+
+private_connection::private_connection(DBusConnection *raw)
+:
+	connection(raw)
+{ }
+
+private_connection::~private_connection()
+{
+	close();
+}
+
+void private_connection::close()
+{
+	dbus_connection_close(raw_);
 }
 
 connection::~connection()
@@ -72,9 +110,15 @@ connection::raw()
 namespace glue {
 
 connection_ptr
-connection::create(DBusConnection *raw)
+connection::create_private(DBusConnection *raw)
 {
-	return connection_ptr(new internal::connection(raw));
+	return connection_ptr(new internal::private_connection(raw));
+}
+
+connection_ptr
+connection::create_shared(DBusConnection *raw)
+{
+	return connection_ptr(new internal::shared_connection(raw));
 }
 
 }}

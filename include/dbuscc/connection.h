@@ -36,6 +36,7 @@ namespace dbuscc {
 class connection {
 public:
 	virtual ~connection() {}
+	virtual void close() = 0;
 	virtual glue::connection & glue() = 0;
 };
 

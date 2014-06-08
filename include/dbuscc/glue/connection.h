@@ -37,7 +37,8 @@ namespace glue {
 
 class connection : public dbuscc::connection {
 public:
-	static connection_ptr create(DBusConnection *);
+	static connection_ptr create_private(DBusConnection *);
+	static connection_ptr create_shared(DBusConnection *);
 	virtual ~connection() {}
 	virtual DBusConnection *raw() = 0;
 };

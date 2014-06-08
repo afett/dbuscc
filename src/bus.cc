@@ -65,7 +65,7 @@ bus::open(std::string const& address, error & e)
 	DBusConnection *conn(
 		dbus_connection_open(address.c_str(), glue::err(e)));
 	return !conn ? connection_ptr() :
-		glue::connection::create(conn);
+		glue::connection::create_shared(conn);
 }
 
 connection_ptr
@@ -74,7 +74,7 @@ bus::open_private(std::string const& address, error & e)
 	DBusConnection *conn(
 		dbus_connection_open_private(address.c_str(), glue::err(e)));
 	return !conn ? connection_ptr() :
-		glue::connection::create(conn);
+		glue::connection::create_private(conn);
 }
 
 connection_ptr
@@ -83,7 +83,7 @@ bus::open(Type bus, error & e)
 	DBusConnection *conn(
 		dbus_bus_get(::bus_type(bus), glue::err(e)));
 	return !conn ? connection_ptr() :
-		glue::connection::create(conn);
+		glue::connection::create_shared(conn);
 }
 
 connection_ptr
@@ -92,7 +92,7 @@ bus::open_private(Type bus, error & e)
 	DBusConnection *conn(
 		dbus_bus_get_private(::bus_type(bus), glue::err(e)));
 	return !conn ? connection_ptr() :
-		glue::connection::create(conn);
+		glue::connection::create_private(conn);
 }
 
 } // namespace internal
