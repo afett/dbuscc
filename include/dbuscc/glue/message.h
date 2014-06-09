@@ -35,7 +35,10 @@
 namespace dbuscc {
 namespace glue {
 
-class message : public dbuscc::message {
+class message :
+	public dbuscc::message,
+	public DBUSCC_SHARED_FROM_THIS(message)
+{
 public:
 	virtual ~message() {}
 	virtual DBusMessage *raw() = 0;

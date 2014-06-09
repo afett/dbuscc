@@ -26,6 +26,7 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <dbuscc/glue/message-writer.h>
 #include <dbuscc/glue/return-message.h>
 
 #include "xassert.h"
@@ -37,6 +38,7 @@ class return_message : public glue::return_message {
 public:
 	return_message(DBusMessage *);
 	~return_message();
+	message_writer create_writer();
 	glue::message & glue();
 	DBusMessage *raw();
 
@@ -54,6 +56,11 @@ return_message::return_message(DBusMessage *raw)
 return_message::~return_message()
 {
 	dbus_message_unref(raw_);
+}
+
+message_writer return_message::create_writer()
+{
+	return message_writer(shared_from_this());
 }
 
 glue::message & return_message::glue()

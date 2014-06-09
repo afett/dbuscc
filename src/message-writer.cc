@@ -26,14 +26,35 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <dbuscc/glue/message.h>
 #include <dbuscc/glue/message-writer.h>
+
+#include "xassert.h"
 
 namespace dbuscc {
 
-message_writer::message_writer()
+message_writer::message_writer(message_ptr const& msg)
 :
-	impl_(new glue::message_writer())
+	msg_(msg),
+	impl_(0)
+{
+	DBUSCC_ASSERT(msg_);
+	impl_.reset(new glue::message_writer(msg->glue().raw()));
+}
+
+message_writer::message_writer(message_writer const& o)
+:
+	impl_(new glue::message_writer(*o.impl_))
 { }
+
+message_writer & message_writer::operator=(message_writer const& o)
+{
+	if (&o != this) {
+		impl_.reset(new glue::message_writer(*o.impl_));
+	}
+
+	return *this;
+}
 
 glue::message_writer & message_writer::glue() const
 {
@@ -42,8 +63,13 @@ glue::message_writer & message_writer::glue() const
 
 namespace glue {
 
-message_writer::message_writer()
-{ }
+message_writer::message_writer(DBusMessage *msg)
+:
+	msg_(msg)
+{
+	DBUSCC_ASSERT(msg_);
+	dbus_message_iter_init_append(msg, &raw_);
+}
 
 message_writer::~message_writer()
 { }

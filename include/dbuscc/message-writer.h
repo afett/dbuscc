@@ -36,10 +36,13 @@ namespace dbuscc {
 
 class message_writer {
 public:
-	message_writer();
+	message_writer(message_ptr const&);
+	message_writer(message_writer const&);
+	message_writer & operator=(message_writer const&);
 	glue::message_writer & glue() const;
 
 private:
+	message_ptr msg_;
 	DBUSCC_SCOPED_PTR(glue::message_writer) impl_;
 };
 

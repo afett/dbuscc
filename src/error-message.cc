@@ -26,6 +26,7 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <dbuscc/glue/message-writer.h>
 #include <dbuscc/glue/error-message.h>
 
 #include "xassert.h"
@@ -37,6 +38,7 @@ class error_message : public glue::error_message {
 public:
 	error_message(DBusMessage *);
 	~error_message();
+	message_writer create_writer();
 	glue::message & glue();
 	DBusMessage *raw();
 
@@ -54,6 +56,11 @@ error_message::error_message(DBusMessage *raw)
 error_message::~error_message()
 {
 	dbus_message_unref(raw_);
+}
+
+message_writer error_message::create_writer()
+{
+	return message_writer(shared_from_this());
 }
 
 glue::message & error_message::glue()

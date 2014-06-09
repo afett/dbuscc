@@ -36,6 +36,7 @@ namespace dbuscc {
 class message {
 public:
 	virtual ~message() {}
+	virtual message_writer create_writer() = 0;
 	virtual glue::message & glue() = 0;
 };
 

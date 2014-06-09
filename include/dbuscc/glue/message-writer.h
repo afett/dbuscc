@@ -38,7 +38,7 @@ namespace glue {
 
 class message_writer {
 public:
-	message_writer();
+	message_writer(DBusMessage *);
 	~message_writer();
 
 	DBusMessageIter *raw()
@@ -47,6 +47,7 @@ public:
 	}
 
 private:
+	DBusMessage *msg_;
 	DBusMessageIter raw_;
 };
 

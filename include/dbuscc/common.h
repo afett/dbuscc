@@ -33,10 +33,12 @@
 #include <boost/shared_ptr.hpp>
 #define DBUSCC_SHARED_PTR(type) boost::shared_ptr<type>
 #define DBUSCC_SCOPED_PTR(type) boost::scoped_ptr<type>
+#define DBUSCC_SHARED_FROM_THIS(type) boost::enable_shared_from_this<type>
 #else
 #include <tr1/memory>
 #define DBUSCC_SHARED_PTR(type) std::tr1::shared_ptr<type>
 #define DBUSCC_SCOPED_PTR(type) std::auto_ptr<type>
+#define DBUSCC_SHARED_FROM_THIS(type) std::tr1::enable_shared_from_this<type>
 #endif
 
 namespace dbuscc {
