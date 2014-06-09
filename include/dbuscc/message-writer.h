@@ -26,54 +26,22 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DBUSCC_POINTER_H
-#define DBUSCC_POINTER_H
+#ifndef DBUSCC_MESSAGE_WRITER_H
+#define DBUSCC_MESSAGE_WRITER_H
 
-#ifdef DBUSSCC_USE_BOOST_PTR
-#include <boost/shared_ptr.hpp>
-#define DBUSCC_SHARED_PTR(type) boost::shared_ptr<type>
-#define DBUSCC_SCOPED_PTR(type) boost::scoped_ptr<type>
-#else
-#include <tr1/memory>
-#define DBUSCC_SHARED_PTR(type) std::tr1::shared_ptr<type>
-#define DBUSCC_SCOPED_PTR(type) std::auto_ptr<type>
-#endif
+#include <string>
+#include <dbuscc/common.h>
 
 namespace dbuscc {
 
-class bus;
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_writer;
+class message_writer {
+public:
+	message_writer();
+	glue::message_writer & glue() const;
 
-typedef DBUSCC_SHARED_PTR(bus) bus_ptr;
-typedef DBUSCC_SHARED_PTR(connection) connection_ptr;
-typedef DBUSCC_SHARED_PTR(message) message_ptr;
-typedef DBUSCC_SHARED_PTR(error_message) error_message_ptr;
-typedef DBUSCC_SHARED_PTR(call_message) call_message_ptr;
-typedef DBUSCC_SHARED_PTR(return_message) return_message_ptr;
-typedef DBUSCC_SHARED_PTR(signal_message) signal_message_ptr;
-typedef DBUSCC_SHARED_PTR(pending_call) pending_call_ptr;
-
-namespace glue {
-
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_writer;
-
-}
+private:
+	DBUSCC_SCOPED_PTR(glue::message_writer) impl_;
+};
 
 }
 
