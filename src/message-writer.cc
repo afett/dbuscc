@@ -26,6 +26,7 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <dbuscc/object-path.h>
 #include <dbuscc/glue/message.h>
 #include <dbuscc/glue/message-writer.h>
 
@@ -56,6 +57,63 @@ message_writer & message_writer::operator=(message_writer const& o)
 	return *this;
 }
 
+bool message_writer::push_uint8(uint8_t v)
+{
+	return impl_->append_basic(DBUS_TYPE_BYTE, &v);
+}
+
+bool message_writer::push_bool(bool v)
+{
+	return impl_->append_basic(DBUS_TYPE_BOOLEAN, &v);
+}
+
+bool message_writer::push_int16(int16_t v)
+{
+	return impl_->append_basic(DBUS_TYPE_INT16, &v);
+}
+
+bool message_writer::push_uint16(uint16_t v)
+{
+	return impl_->append_basic(DBUS_TYPE_UINT16, &v);
+}
+
+bool message_writer::push_int32(int32_t v)
+{
+	return impl_->append_basic(DBUS_TYPE_INT32, &v);
+}
+
+bool message_writer::push_uint32(uint32_t v)
+{
+	return impl_->append_basic(DBUS_TYPE_UINT32, &v);
+}
+
+bool message_writer::push_int64(int64_t v)
+{
+	return impl_->append_basic(DBUS_TYPE_INT64, &v);
+}
+
+bool message_writer::push_uint64(uint64_t v)
+{
+	return impl_->append_basic(DBUS_TYPE_UINT64, &v);
+}
+
+bool message_writer::push_double(double v)
+{
+	return impl_->append_basic(DBUS_TYPE_DOUBLE, &v);
+}
+
+bool message_writer::push_string(std::string const& v)
+{
+	const char *s(v.c_str());
+	return impl_->append_basic(DBUS_TYPE_STRING, &s);
+}
+
+bool message_writer::push_object_path(object_path const& v)
+{
+	const char *s(v.c_str());
+	return impl_->append_basic(DBUS_TYPE_OBJECT_PATH, &s);
+}
+
 glue::message_writer & message_writer::glue() const
 {
 	return *impl_;
@@ -73,5 +131,10 @@ message_writer::message_writer(DBusMessage *msg)
 
 message_writer::~message_writer()
 { }
+
+bool message_writer::append_basic(int type, const void *value)
+{
+	return dbus_message_iter_append_basic(&raw_, type, value);
+}
 
 }}

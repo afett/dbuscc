@@ -41,6 +41,8 @@ public:
 	message_writer(DBusMessage *);
 	~message_writer();
 
+	bool append_basic(int, const void*);
+
 	DBusMessageIter *raw()
 	{
 		return &raw_;

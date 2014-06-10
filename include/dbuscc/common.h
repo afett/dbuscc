@@ -53,6 +53,7 @@ class call_message;
 class return_message;
 class pending_call;
 class message_writer;
+class object_path;
 
 typedef DBUSCC_SHARED_PTR(bus) bus_ptr;
 typedef DBUSCC_SHARED_PTR(connection) connection_ptr;

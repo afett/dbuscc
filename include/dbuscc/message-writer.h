@@ -29,6 +29,7 @@
 #ifndef DBUSCC_MESSAGE_WRITER_H
 #define DBUSCC_MESSAGE_WRITER_H
 
+#include <stdint.h>
 #include <string>
 #include <dbuscc/common.h>
 
@@ -39,6 +40,19 @@ public:
 	message_writer(message_ptr const&);
 	message_writer(message_writer const&);
 	message_writer & operator=(message_writer const&);
+
+	bool push_uint8(uint8_t);
+	bool push_bool(bool);
+	bool push_int16(int16_t);
+	bool push_uint16(uint16_t);
+	bool push_int32(int32_t);
+	bool push_uint32(uint32_t);
+	bool push_int64(int64_t);
+	bool push_uint64(uint64_t);
+	bool push_double(double);
+	bool push_string(std::string const&);
+	bool push_object_path(object_path const&);
+
 	glue::message_writer & glue() const;
 
 private:
