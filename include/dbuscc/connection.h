@@ -35,13 +35,22 @@ namespace dbuscc {
 
 class connection {
 public:
+	enum DispatchState {
+		DISPATCH_DATA_REMAINS,
+		DISPATCH_COMPLETE,
+		DISPATCH_NEED_MEMORY,
+	};
+
 	virtual ~connection() {}
 	virtual void close() = 0;
 	virtual bool send(message_ptr const&) = 0;
 	virtual pending_call_ptr call(call_message_ptr const&) = 0;
+	virtual DispatchState dispatch_state() const = 0;
+	virtual DispatchState dispatch() = 0;
 
 	virtual DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add() = 0;
 	virtual DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add() = 0;
+	virtual DBUSCC_SIGNAL(void(DispatchState)) & on_dispatch_state() = 0;
 
 	virtual glue::connection & glue() = 0;
 };

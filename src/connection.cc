@@ -35,6 +35,25 @@
 #include "ptr-wrapper.h"
 #include "xassert.h"
 
+namespace {
+
+dbuscc::connection::DispatchState dispatch_state(DBusDispatchStatus status)
+{
+	switch (status) {
+	case DBUS_DISPATCH_DATA_REMAINS:
+		return dbuscc::connection::DISPATCH_DATA_REMAINS;
+	case DBUS_DISPATCH_COMPLETE:
+		return dbuscc::connection::DISPATCH_COMPLETE;
+	case DBUS_DISPATCH_NEED_MEMORY:
+		return dbuscc::connection::DISPATCH_NEED_MEMORY;
+	}
+
+	DBUSCC_ASSERT(false);
+	return dbuscc::connection::DISPATCH_NEED_MEMORY;
+}
+
+}
+
 namespace dbuscc {
 namespace internal {
 
@@ -47,9 +66,12 @@ public:
 	~connection();
 	bool send(message_ptr const&);
 	pending_call_ptr call(call_message_ptr const&);
+	DispatchState dispatch_state() const;
+	DispatchState dispatch();
 
 	DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add();
 	DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add();
+	DBUSCC_SIGNAL(void(DispatchState)) & on_dispatch_state();
 
 	glue::connection & glue();
 	DBusConnection *raw();
@@ -59,6 +81,7 @@ public:
 protected:
 	DBUSCC_SIGNAL(void(watch_weak_ptr)) on_watch_add_;
 	DBUSCC_SIGNAL(void(timeout_weak_ptr)) on_timeout_add_;
+	DBUSCC_SIGNAL(void(DispatchState)) on_dispatch_state_;
 	DBusConnection *raw_;
 
 private:
@@ -77,8 +100,12 @@ private:
 	static dbus_bool_t add_timeout(DBusTimeout *, void *);
 	void install_timeout_handler();
 
+	static void dispatch_state_changed(DBusConnection *, DBusDispatchStatus, void *);
+	void install_dispatch_handler();
+
 	bool watch_handler_installed_;
 	bool timeout_handler_installed_;
+	bool dispatch_handler_installed_;
 };
 
 class shared_connection : public connection {
@@ -231,6 +258,52 @@ DBUSCC_SIGNAL(void(timeout_weak_ptr)) & connection::on_timeout_add()
 {
 	install_timeout_handler();
 	return on_timeout_add_;
+}
+
+connection::DispatchState connection::dispatch_state() const
+{
+	DBUSCC_ASSERT(raw_);
+	return ::dispatch_state(
+		dbus_connection_get_dispatch_status(raw_));
+}
+
+connection::DispatchState connection::dispatch()
+{
+	DBUSCC_ASSERT(raw_);
+	return ::dispatch_state(
+		dbus_connection_dispatch(raw_));
+}
+
+void connection::install_dispatch_handler()
+{
+	if (dispatch_handler_installed_) {
+		return;
+	}
+
+	dbus_connection_set_dispatch_status_function(
+		raw_,
+		&connection::dispatch_state_changed,
+		new wrapper(shared_from_this()),
+		&wrapper::delete_wrapper);
+
+	dispatch_handler_installed_ = true;
+}
+
+void connection::dispatch_state_changed(
+	DBusConnection *, DBusDispatchStatus new_state, void *data)
+{
+	DBUSCC_ASSERT(data);
+
+	connection_ptr self(wrapper::self(data)->ptr_.lock());
+	if (self) {
+		self->on_dispatch_state_(::dispatch_state(new_state));
+	}
+}
+
+DBUSCC_SIGNAL(void(connection::DispatchState)) & connection::on_dispatch_state()
+{
+	install_dispatch_handler();
+	return on_dispatch_state_;
 }
 
 connection::~connection()
