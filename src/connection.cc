@@ -28,26 +28,50 @@
 
 #include <dbuscc/glue/call-message.h>
 #include <dbuscc/glue/pending-call.h>
+#include <dbuscc/glue/watch.h>
 #include <dbuscc/glue/connection.h>
 
+#include "ptr-wrapper.h"
 #include "xassert.h"
 
 namespace dbuscc {
 namespace internal {
 
-class connection : public glue::connection {
+class connection :
+	public glue::connection,
+	public DBUSCC_SHARED_FROM_THIS(connection)
+{
 public:
 	connection(DBusConnection *);
 	~connection();
 	bool send(message_ptr const&);
 	pending_call_ptr call(call_message_ptr const&);
+
+	DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add();
+
 	glue::connection & glue();
 	DBusConnection *raw();
 	bool send(DBusMessage *);
 	DBusPendingCall *call(DBusMessage *);
 
 protected:
+	DBUSCC_SIGNAL(void(watch_weak_ptr)) on_watch_add_;
 	DBusConnection *raw_;
+
+private:
+	typedef DBUSCC_WEAK_PTR(connection) connection_weak_ptr;
+	typedef DBUSCC_SHARED_PTR(connection) connection_ptr;
+
+	struct wrapper : public ptr_wrapper<connection_weak_ptr> {
+		wrapper(connection_weak_ptr const& ptr)
+		: ptr_wrapper<connection_weak_ptr>(ptr)
+		{ }
+	};
+
+	static dbus_bool_t add_watch(DBusWatch *, void *);
+	void install_watch_handler();
+
+	bool watch_handler_installed_;
 };
 
 class shared_connection : public connection {
@@ -65,7 +89,8 @@ public:
 
 connection::connection(DBusConnection *raw)
 :
-	raw_(raw)
+	raw_(raw),
+	watch_handler_installed_(false)
 {
 	DBUSCC_ASSERT(raw_);
 }
@@ -127,6 +152,42 @@ DBusPendingCall *connection::call(DBusMessage *msg)
 
 	DBUSCC_ASSERT(pending_return);
 	return pending_return;
+}
+
+void connection::install_watch_handler()
+{
+	if (watch_handler_installed_) {
+		return;
+	}
+
+	dbus_connection_set_watch_functions(
+		raw_,
+		&connection::add_watch,
+		&glue::watch::removed,
+		&glue::watch::toggled,
+		new wrapper(shared_from_this()),
+		&wrapper::delete_wrapper);
+
+	watch_handler_installed_ = true;
+}
+
+dbus_bool_t connection::add_watch(DBusWatch *raw_watch, void *data)
+{
+	DBUSCC_ASSERT(data);
+	DBUSCC_ASSERT(raw_watch);
+
+	connection_ptr self(wrapper::self(data)->ptr_.lock());
+	if (self) {
+		self->on_watch_add_(glue::watch::create(raw_watch));
+	}
+
+	return true;
+}
+
+DBUSCC_SIGNAL(void(watch_weak_ptr)) & connection::on_watch_add()
+{
+	install_watch_handler();
+	return on_watch_add_;
 }
 
 connection::~connection()
