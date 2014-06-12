@@ -41,6 +41,7 @@ public:
 	virtual pending_call_ptr call(call_message_ptr const&) = 0;
 
 	virtual DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add() = 0;
+	virtual DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add() = 0;
 
 	virtual glue::connection & glue() = 0;
 };

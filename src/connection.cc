@@ -28,6 +28,7 @@
 
 #include <dbuscc/glue/call-message.h>
 #include <dbuscc/glue/pending-call.h>
+#include <dbuscc/glue/timeout.h>
 #include <dbuscc/glue/watch.h>
 #include <dbuscc/glue/connection.h>
 
@@ -48,6 +49,7 @@ public:
 	pending_call_ptr call(call_message_ptr const&);
 
 	DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add();
+	DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add();
 
 	glue::connection & glue();
 	DBusConnection *raw();
@@ -56,6 +58,7 @@ public:
 
 protected:
 	DBUSCC_SIGNAL(void(watch_weak_ptr)) on_watch_add_;
+	DBUSCC_SIGNAL(void(timeout_weak_ptr)) on_timeout_add_;
 	DBusConnection *raw_;
 
 private:
@@ -71,7 +74,11 @@ private:
 	static dbus_bool_t add_watch(DBusWatch *, void *);
 	void install_watch_handler();
 
+	static dbus_bool_t add_timeout(DBusTimeout *, void *);
+	void install_timeout_handler();
+
 	bool watch_handler_installed_;
+	bool timeout_handler_installed_;
 };
 
 class shared_connection : public connection {
@@ -188,6 +195,42 @@ DBUSCC_SIGNAL(void(watch_weak_ptr)) & connection::on_watch_add()
 {
 	install_watch_handler();
 	return on_watch_add_;
+}
+
+void connection::install_timeout_handler()
+{
+	if (timeout_handler_installed_) {
+		return;
+	}
+
+	dbus_connection_set_timeout_functions(
+		raw_,
+		&connection::add_timeout,
+		&glue::timeout::removed,
+		&glue::timeout::toggled,
+		new wrapper(shared_from_this()),
+		&wrapper::delete_wrapper);
+
+	timeout_handler_installed_ = true;
+}
+
+dbus_bool_t connection::add_timeout(DBusTimeout *raw_timeout, void *data)
+{
+	DBUSCC_ASSERT(data);
+	DBUSCC_ASSERT(raw_timeout);
+
+	connection_ptr self(wrapper::self(data)->ptr_.lock());
+	if (self) {
+		self->on_timeout_add_(glue::timeout::create(raw_timeout));
+	}
+
+	return true;
+}
+
+DBUSCC_SIGNAL(void(timeout_weak_ptr)) & connection::on_timeout_add()
+{
+	install_timeout_handler();
+	return on_timeout_add_;
 }
 
 connection::~connection()
