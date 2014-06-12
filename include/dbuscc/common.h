@@ -31,6 +31,8 @@
 
 #ifdef DBUSSCC_USE_BOOST_PTR
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #define DBUSCC_SHARED_PTR(type) boost::shared_ptr<type>
 #define DBUSCC_WEAK_PTR(type) boost::weak_ptr<type>
 #define DBUSCC_SCOPED_PTR(type) boost::scoped_ptr<type>
