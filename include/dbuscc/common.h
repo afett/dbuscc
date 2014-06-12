@@ -63,6 +63,7 @@ class bus;
 class error;
 class connection;
 class watch;
+class timeout;
 class message;
 class error_message;
 class signal_message;
@@ -76,6 +77,8 @@ typedef DBUSCC_SHARED_PTR(bus) bus_ptr;
 typedef DBUSCC_SHARED_PTR(connection) connection_ptr;
 typedef DBUSCC_SHARED_PTR(watch) watch_ptr;
 typedef DBUSCC_WEAK_PTR(watch) watch_weak_ptr;
+typedef DBUSCC_SHARED_PTR(timeout) timeout_ptr;
+typedef DBUSCC_WEAK_PTR(timeout) timeout_weak_ptr;
 typedef DBUSCC_SHARED_PTR(message) message_ptr;
 typedef DBUSCC_SHARED_PTR(error_message) error_message_ptr;
 typedef DBUSCC_SHARED_PTR(call_message) call_message_ptr;
@@ -95,9 +98,12 @@ class return_message;
 class pending_call;
 class message_writer;
 class watch;
+class timeout;
 
 typedef DBUSCC_SHARED_PTR(watch) watch_ptr;
 typedef DBUSCC_WEAK_PTR(watch) watch_weak_ptr;
+typedef DBUSCC_SHARED_PTR(timeout) timeout_ptr;
+typedef DBUSCC_WEAK_PTR(timeout) timeout_weak_ptr;
 
 }
 
