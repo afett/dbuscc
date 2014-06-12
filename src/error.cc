@@ -36,6 +36,11 @@ error::error()
 	impl_(new glue::error())
 { }
 
+error::~error()
+{
+	impl_.reset();
+}
+
 bool error::is_set() const
 {
 	return dbus_error_is_set(impl_->raw());

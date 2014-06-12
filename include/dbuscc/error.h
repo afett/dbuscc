@@ -37,6 +37,7 @@ namespace dbuscc {
 class error {
 public:
 	error();
+	~error();
 
 	typedef bool (error::*unspecified_boolean_type)() const;
 	operator unspecified_boolean_type() const
