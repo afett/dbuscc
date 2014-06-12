@@ -29,7 +29,7 @@
 #ifndef DBUSCC_POINTER_H
 #define DBUSCC_POINTER_H
 
-#ifdef DBUSSCC_USE_BOOST_PTR
+#if defined(DBUSSCC_USE_BOOST_PTR)
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -45,7 +45,7 @@
 #define DBUSCC_SHARED_FROM_THIS(type) std::tr1::enable_shared_from_this<type>
 #endif
 
-#ifdef DBUSCC_USE_BOOST_FUNCTION
+#if defined(DBUSCC_USE_BOOST_FUNCTION)
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #define DBUSCC_FUNCTION(signature) boost::function<signature>
@@ -56,8 +56,16 @@
 #define DBUSCC_BIND(arg) std::tr1::bind((arg))
 #endif
 
+#if defined(DBUSCC_USE_BOOST_SIGNALS)
+#include <boost/signals2/signal.hpp>
+#define DBUSCC_SIGNAL(signature) boost::signals2::signal<signature>
+#elif defined(DBUSCC_USE_TSCB_SIGNALS)
+#include <tscb/signal>
+#define DBUSCC_SIGNAL(signature) tscb::signal<signature>
+#else
 #include <yash.hpp>
 #define DBUSCC_SIGNAL(signature) yash::signal<signature>
+#endif
 
 namespace dbuscc {
 
