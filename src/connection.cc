@@ -220,10 +220,8 @@ dbus_bool_t connection::add_watch(DBusWatch *raw_watch, void *data)
 	DBUSCC_ASSERT(raw_watch);
 
 	connection_ptr self(wrapper::self(data)->ptr_.lock());
-	if (self) {
-		self->on_watch_add_(glue::watch::create(raw_watch));
-	}
-
+	DBUSCC_ASSERT(self);
+	self->on_watch_add_(glue::watch::create(raw_watch));
 	return true;
 }
 
@@ -255,10 +253,8 @@ dbus_bool_t connection::add_timeout(DBusTimeout *raw_timeout, void *data)
 	DBUSCC_ASSERT(raw_timeout);
 
 	connection_ptr self(wrapper::self(data)->ptr_.lock());
-	if (self) {
-		self->on_timeout_add_(glue::timeout::create(raw_timeout));
-	}
-
+	DBUSCC_ASSERT(self);
+	self->on_timeout_add_(glue::timeout::create(raw_timeout));
 	return true;
 }
 
@@ -302,9 +298,8 @@ void connection::dispatch_state_changed(
 	DBUSCC_ASSERT(data);
 
 	connection_ptr self(wrapper::self(data)->ptr_.lock());
-	if (self) {
-		self->on_dispatch_state_(::dispatch_state(new_state));
-	}
+	DBUSCC_ASSERT(self);
+	self->on_dispatch_state_(::dispatch_state(new_state));
 }
 
 DBUSCC_SIGNAL(void(connection::DispatchState)) & connection::on_dispatch_state()
