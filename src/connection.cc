@@ -127,7 +127,9 @@ public:
 connection::connection(DBusConnection *raw)
 :
 	raw_(raw),
-	watch_handler_installed_(false)
+	watch_handler_installed_(false),
+	timeout_handler_installed_(false),
+	dispatch_handler_installed_(false)
 {
 	DBUSCC_ASSERT(raw_);
 }
