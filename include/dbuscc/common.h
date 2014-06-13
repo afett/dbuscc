@@ -47,13 +47,10 @@
 
 #if defined(DBUSCC_USE_BOOST_FUNCTION)
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
 #define DBUSCC_FUNCTION(signature) boost::function<signature>
-#define DBUSCC_BIND(arg) boost::bind((arg))
 #else
 #include <tr1/functional>
 #define DBUSCC_FUNCTION(signature) std::tr1::function<signature>
-#define DBUSCC_BIND(arg) std::tr1::bind((arg))
 #endif
 
 #if defined(DBUSCC_USE_BOOST_SIGNALS)
