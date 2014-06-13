@@ -51,6 +51,8 @@ public:
 		dbuscc::watch_ptr w(ctx->watch.lock());
 		w->on_change().connect(boost::bind(
 			&tscb_adapter::on_watch_change, this, ctx));
+		reactor_.post(boost::bind(
+			&tscb_adapter::on_watch_change, this, ctx));
 	}
 
 	void on_timeout_add(dbuscc::timeout_weak_ptr const& timeout)
@@ -60,6 +62,8 @@ public:
 		ctx->timeout = timeout;
 		dbuscc::timeout_ptr t(ctx->timeout.lock());
 		t->on_change().connect(boost::bind(
+			&tscb_adapter::on_timeout_change, this, ctx));
+		reactor_.post(boost::bind(
 			&tscb_adapter::on_timeout_change, this, ctx));
 	}
 
