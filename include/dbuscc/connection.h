@@ -47,8 +47,23 @@ public:
 	virtual bool send(message_ptr const&) = 0;
 	virtual pending_call_ptr call(call_message_ptr const&) = 0;
 	virtual DispatchState dispatch_state() const = 0;
+	/*
+	 * Process message queue, at most one message will
+	 * be proceessed. The documentation for dbus_connection_dispatch()
+	 * notes that this should not be called directly from the callback
+	 * signaling a change in dispatch state.
+	 */
 	virtual DispatchState dispatch() = 0;
 
+	/*
+	 * Main loop integration. The livetime of watch and
+	 * timeout is managed by the dbus library.
+	 *
+	 * NOTE: install_handlers() should be called after
+	 * registering with the signals, as this may immediatly
+	 * invoke them. (dbus_connection_set_watch_functions()
+	 * will in any case)
+	 */
 	virtual void install_handlers() = 0;
 	virtual DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add() = 0;
 	virtual DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add() = 0;

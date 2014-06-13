@@ -23,6 +23,7 @@ public:
 		reactor_(reactor),
 		conn_(conn)
 	{
+		/* see documentation in the dbuscc/connection header */
 		conn_->on_watch_add().connect(
 			boost::bind(&tscb_adapter::on_watch_add, this, _1));
 		conn_->on_timeout_add().connect(
