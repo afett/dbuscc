@@ -29,7 +29,7 @@
 #ifndef DBUSCC_POINTER_H
 #define DBUSCC_POINTER_H
 
-#if defined(DBUSSCC_USE_BOOST_PTR)
+#if defined(DBUSCC_USE_BOOST_PTR)
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
