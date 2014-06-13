@@ -33,6 +33,7 @@
 #include <dbuscc/glue/connection.h>
 
 #include "ptr-wrapper.h"
+#include "trace.h"
 #include "xassert.h"
 
 namespace {
@@ -138,6 +139,7 @@ shared_connection::shared_connection(DBusConnection *raw)
 
 void shared_connection::close()
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(false && "attempt to close a shared connection");
 }
 
@@ -153,17 +155,20 @@ private_connection::~private_connection()
 
 void private_connection::close()
 {
+	DBUSCC_TRACE();
 	dbus_connection_close(raw_);
 }
 
 bool connection::send(message_ptr const& msg)
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(msg);
 	return send(msg->glue().raw());
 }
 
 bool connection::send(DBusMessage *msg)
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(msg);
 	// we don't pass in the serial as sending will set the serial
 	// on the message and we can get it from there
@@ -172,12 +177,14 @@ bool connection::send(DBusMessage *msg)
 
 pending_call_ptr connection::call(call_message_ptr const& msg)
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(msg);
 	return glue::pending_call::create(call(msg->glue().raw()));
 }
 
 DBusPendingCall *connection::call(DBusMessage *msg)
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(msg);
 	DBusPendingCall *pending_return(0);
 	bool success(dbus_connection_send_with_reply(
@@ -192,6 +199,7 @@ DBusPendingCall *connection::call(DBusMessage *msg)
 
 void connection::install_handlers()
 {
+	DBUSCC_TRACE();
 	install_watch_handler();
 	install_timeout_handler();
 	install_dispatch_handler();
@@ -199,6 +207,7 @@ void connection::install_handlers()
 
 void connection::install_watch_handler()
 {
+	DBUSCC_TRACE();
 	if (watch_handler_installed_) {
 		return;
 	}
@@ -216,6 +225,7 @@ void connection::install_watch_handler()
 
 dbus_bool_t connection::add_watch(DBusWatch *raw_watch, void *data)
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(data);
 	DBUSCC_ASSERT(raw_watch);
 
@@ -227,11 +237,13 @@ dbus_bool_t connection::add_watch(DBusWatch *raw_watch, void *data)
 
 DBUSCC_SIGNAL(void(watch_weak_ptr)) & connection::on_watch_add()
 {
+	DBUSCC_TRACE();
 	return on_watch_add_;
 }
 
 void connection::install_timeout_handler()
 {
+	DBUSCC_TRACE();
 	if (timeout_handler_installed_) {
 		return;
 	}
@@ -249,6 +261,7 @@ void connection::install_timeout_handler()
 
 dbus_bool_t connection::add_timeout(DBusTimeout *raw_timeout, void *data)
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(data);
 	DBUSCC_ASSERT(raw_timeout);
 
@@ -260,11 +273,13 @@ dbus_bool_t connection::add_timeout(DBusTimeout *raw_timeout, void *data)
 
 DBUSCC_SIGNAL(void(timeout_weak_ptr)) & connection::on_timeout_add()
 {
+	DBUSCC_TRACE();
 	return on_timeout_add_;
 }
 
 connection::DispatchState connection::dispatch_state() const
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(raw_);
 	return ::dispatch_state(
 		dbus_connection_get_dispatch_status(raw_));
@@ -272,6 +287,7 @@ connection::DispatchState connection::dispatch_state() const
 
 connection::DispatchState connection::dispatch()
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(raw_);
 	return ::dispatch_state(
 		dbus_connection_dispatch(raw_));
@@ -279,6 +295,7 @@ connection::DispatchState connection::dispatch()
 
 void connection::install_dispatch_handler()
 {
+	DBUSCC_TRACE();
 	if (dispatch_handler_installed_) {
 		return;
 	}
@@ -295,6 +312,7 @@ void connection::install_dispatch_handler()
 void connection::dispatch_state_changed(
 	DBusConnection *, DBusDispatchStatus new_state, void *data)
 {
+	DBUSCC_TRACE();
 	DBUSCC_ASSERT(data);
 
 	connection_ptr self(wrapper::self(data)->ptr_.lock());
@@ -304,6 +322,7 @@ void connection::dispatch_state_changed(
 
 DBUSCC_SIGNAL(void(connection::DispatchState)) & connection::on_dispatch_state()
 {
+	DBUSCC_TRACE();
 	return on_dispatch_state_;
 }
 
