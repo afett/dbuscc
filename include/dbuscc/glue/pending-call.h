@@ -30,6 +30,7 @@
 #define DBUSCC_GLUE_PENDING_CALL_H
 
 #include <dbus/dbus.h>
+#include <dbuscc/pointer.h>
 #include <dbuscc/pending-call.h>
 
 namespace dbuscc {

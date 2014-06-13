@@ -29,7 +29,7 @@
 #ifndef DBUSCC_BUS_H
 #define DBUSCC_BUS_H
 
-#include <dbuscc/common.h>
+#include <dbuscc/pointer.h>
 
 namespace dbuscc {
 

@@ -31,7 +31,7 @@
 
 #include <stdint.h>
 #include <string>
-#include <dbuscc/common.h>
+#include <dbuscc/pointer.h>
 
 namespace dbuscc {
 

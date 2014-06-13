@@ -30,6 +30,7 @@
 #define DBUSCC_GLUE_MESSAGE_H
 
 #include <dbus/dbus.h>
+#include <dbuscc/pointer.h>
 #include <dbuscc/message.h>
 
 namespace dbuscc {

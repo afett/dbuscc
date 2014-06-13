@@ -30,7 +30,7 @@
 #define DBUSCC_ERROR_H
 
 #include <string>
-#include <dbuscc/common.h>
+#include <dbuscc/pointer.h>
 
 namespace dbuscc {
 

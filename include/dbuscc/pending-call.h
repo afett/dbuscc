@@ -29,7 +29,7 @@
 #ifndef DBUSCC_PENDING_CALL_H
 #define DBUSCC_PENDING_CALL_H
 
-#include <dbuscc/common.h>
+#include <dbuscc/forward.h>
 
 namespace dbuscc {
 

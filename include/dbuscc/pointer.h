@@ -29,6 +29,9 @@
 #ifndef DBUSCC_POINTER_H
 #define DBUSCC_POINTER_H
 
+#include <dbuscc/config.h>
+#include <dbuscc/forward.h>
+
 #if defined(DBUSCC_USE_BOOST_PTR)
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -45,40 +48,7 @@
 #define DBUSCC_SHARED_FROM_THIS(type) std::tr1::enable_shared_from_this<type>
 #endif
 
-#if defined(DBUSCC_USE_BOOST_FUNCTION)
-#include <boost/function.hpp>
-#define DBUSCC_FUNCTION(signature) boost::function<signature>
-#else
-#include <tr1/functional>
-#define DBUSCC_FUNCTION(signature) std::tr1::function<signature>
-#endif
-
-#if defined(DBUSCC_USE_BOOST_SIGNALS)
-#include <boost/signals2/signal.hpp>
-#define DBUSCC_SIGNAL(signature) boost::signals2::signal<signature>
-#elif defined(DBUSCC_USE_TSCB_SIGNALS)
-#include <tscb/signal>
-#define DBUSCC_SIGNAL(signature) tscb::signal<signature>
-#else
-#include <yash.hpp>
-#define DBUSCC_SIGNAL(signature) yash::signal<signature>
-#endif
-
 namespace dbuscc {
-
-class bus;
-class error;
-class connection;
-class watch;
-class timeout;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_writer;
-class object_path;
 
 typedef DBUSCC_SHARED_PTR(bus) bus_ptr;
 typedef DBUSCC_SHARED_PTR(connection) connection_ptr;
@@ -94,18 +64,6 @@ typedef DBUSCC_SHARED_PTR(signal_message) signal_message_ptr;
 typedef DBUSCC_SHARED_PTR(pending_call) pending_call_ptr;
 
 namespace glue {
-
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_writer;
-class watch;
-class timeout;
 
 typedef DBUSCC_SHARED_PTR(watch) watch_ptr;
 typedef DBUSCC_WEAK_PTR(watch) watch_weak_ptr;

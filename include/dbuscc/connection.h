@@ -29,7 +29,8 @@
 #ifndef DBUSCC_CONNECTION_H
 #define DBUSCC_CONNECTION_H
 
-#include <dbuscc/common.h>
+#include <dbuscc/pointer.h>
+#include <dbuscc/signal-slots.h>
 
 namespace dbuscc {
 

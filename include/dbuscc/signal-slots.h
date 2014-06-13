@@ -25,27 +25,29 @@
 	ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef DBUSCC_TIMEOUT_H
-#define DBUSCC_TIMEOUT_H
 
-#include <dbus/dbus.h>
-#include <dbuscc/forward.h>
-#include <dbuscc/signal-slots.h>
+#ifndef DBUSCC_SIGNAL_SLOTS_H
+#define DBUSCC_SIGNAL_SLOTS_H
 
-namespace dbuscc {
+#include <dbuscc/config.h>
 
-class timeout {
-public:
-	virtual ~timeout() { }
-	virtual DBUSCC_SIGNAL(void(void)) & on_change() = 0;
-	virtual DBUSCC_SIGNAL(void(void)) & on_remove() = 0;
-	virtual bool enabled() const = 0;
-	virtual bool handle() = 0;
-	virtual int ms_interval() const = 0;
+#if defined(DBUSCC_USE_BOOST_FUNCTION)
+#include <boost/function.hpp>
+#define DBUSCC_FUNCTION(signature) boost::function<signature>
+#else
+#include <tr1/functional>
+#define DBUSCC_FUNCTION(signature) std::tr1::function<signature>
+#endif
 
-	virtual glue::timeout & glue() = 0;
-};
-
-}
+#if defined(DBUSCC_USE_BOOST_SIGNALS)
+#include <boost/signals2/signal.hpp>
+#define DBUSCC_SIGNAL(signature) boost::signals2::signal<signature>
+#elif defined(DBUSCC_USE_TSCB_SIGNALS)
+#include <tscb/signal>
+#define DBUSCC_SIGNAL(signature) tscb::signal<signature>
+#else
+#include <yash.hpp>
+#define DBUSCC_SIGNAL(signature) yash::signal<signature>
+#endif
 
 #endif

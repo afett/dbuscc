@@ -29,7 +29,7 @@
 #ifndef DBUSCC_MESSAGE_H
 #define DBUSCC_MESSAGE_H
 
-#include <dbuscc/common.h>
+#include <dbuscc/forward.h>
 
 namespace dbuscc {
 

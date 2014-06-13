@@ -25,26 +25,41 @@
 	ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef DBUSCC_TIMEOUT_H
-#define DBUSCC_TIMEOUT_H
 
-#include <dbus/dbus.h>
-#include <dbuscc/forward.h>
-#include <dbuscc/signal-slots.h>
+#ifndef DBUSCC_FORWARD_H
+#define DBUSCC_FORWARD_H
 
 namespace dbuscc {
 
-class timeout {
-public:
-	virtual ~timeout() { }
-	virtual DBUSCC_SIGNAL(void(void)) & on_change() = 0;
-	virtual DBUSCC_SIGNAL(void(void)) & on_remove() = 0;
-	virtual bool enabled() const = 0;
-	virtual bool handle() = 0;
-	virtual int ms_interval() const = 0;
+class bus;
+class error;
+class connection;
+class watch;
+class timeout;
+class message;
+class error_message;
+class signal_message;
+class call_message;
+class return_message;
+class pending_call;
+class message_writer;
+class object_path;
 
-	virtual glue::timeout & glue() = 0;
-};
+namespace glue {
+
+class error;
+class connection;
+class message;
+class error_message;
+class signal_message;
+class call_message;
+class return_message;
+class pending_call;
+class message_writer;
+class watch;
+class timeout;
+
+}
 
 }
 

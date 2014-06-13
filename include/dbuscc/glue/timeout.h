@@ -30,6 +30,7 @@
 #define DBUSCC_GLUE_TIMEOUT_H
 
 #include <dbus/dbus.h>
+#include <dbuscc/pointer.h>
 #include <dbuscc/timeout.h>
 
 namespace dbuscc {

@@ -29,7 +29,8 @@
 #define DBUSCC_WATCH_H
 
 #include <dbus/dbus.h>
-#include <dbuscc/common.h>
+#include <dbuscc/forward.h>
+#include <dbuscc/signal-slots.h>
 
 namespace dbuscc {
 
