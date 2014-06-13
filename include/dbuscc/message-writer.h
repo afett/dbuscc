@@ -42,21 +42,23 @@ public:
 	message_writer & operator=(message_writer const&);
 	~message_writer();
 
-	bool push_uint8(uint8_t);
-	bool push_bool(bool);
-	bool push_int16(int16_t);
-	bool push_uint16(uint16_t);
-	bool push_int32(int32_t);
-	bool push_uint32(uint32_t);
-	bool push_int64(int64_t);
-	bool push_uint64(uint64_t);
-	bool push_double(double);
-	bool push_string(std::string const&);
-	bool push_object_path(object_path const&);
+	virtual bool push_uint8(uint8_t);
+	virtual bool push_bool(bool);
+	virtual bool push_int16(int16_t);
+	virtual bool push_uint16(uint16_t);
+	virtual bool push_int32(int32_t);
+	virtual bool push_uint32(uint32_t);
+	virtual bool push_int64(int64_t);
+	virtual bool push_uint64(uint64_t);
+	virtual bool push_double(double);
+	virtual bool push_string(std::string const&);
+	virtual bool push_object_path(object_path const&);
 
-	glue::message_writer & glue() const;
+	virtual glue::message_writer & glue() const;
 
-private:
+protected:
+	message_writer();
+
 	message_ptr msg_;
 	DBUSCC_SCOPED_PTR(glue::message_writer) impl_;
 };

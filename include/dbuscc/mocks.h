@@ -56,25 +56,61 @@ public:
 	DBUSCC_SIGNAL(void(DispatchState)) on_dispatch_state_;
 };
 
+class message_writer : public base<dbuscc::message_writer, glue::message_writer> {
+public:
+	message_writer()
+	{ }
+
+	virtual bool push_uint8(uint8_t)
+	{ return true; }
+
+	virtual bool push_bool(bool)
+	{ return true; }
+
+	virtual bool push_int16(int16_t)
+	{ return true; }
+
+	virtual bool push_uint16(uint16_t)
+	{ return true; }
+
+	virtual bool push_int32(int32_t)
+	{ return true; }
+
+	virtual bool push_uint32(uint32_t)
+	{ return true; }
+
+	virtual bool push_int64(int64_t)
+	{ return true; }
+
+	virtual bool push_uint64(uint64_t)
+	{ return true; }
+
+	virtual bool push_double(double)
+	{ return true; }
+
+	virtual bool push_string(std::string const&)
+	{ return true; }
+
+	virtual bool push_object_path(object_path const&)
+	{ return true; }
+};
+
 class call_message : public base<dbuscc::call_message, glue::message> {
 public:
-	// FIXME this will trigger an assert
-	virtual message_writer create_writer()
-	{ return message_writer(message_ptr()); }
+	virtual dbuscc::message_writer create_writer()
+	{ return mock::message_writer(); }
 };
 
 class return_message : public base<dbuscc::return_message, glue::message> {
 public:
-	// FIXME this will trigger an assert
-	virtual message_writer create_writer()
-	{ return message_writer(message_ptr()); }
+	virtual dbuscc::message_writer create_writer()
+	{ return mock::message_writer(); }
 };
 
 class signal_message : public base<dbuscc::signal_message, glue::message> {
 public:
-	// FIXME this will trigger an assert
-	virtual message_writer create_writer()
-	{ return message_writer(message_ptr()); }
+	virtual dbuscc::message_writer create_writer()
+	{ return mock::message_writer(); }
 };
 
 class pending_call : public base<dbuscc::pending_call, glue::pending_call> {

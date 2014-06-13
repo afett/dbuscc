@@ -34,6 +34,12 @@
 
 namespace dbuscc {
 
+message_writer::message_writer()
+:
+	msg_(),
+	impl_(0)
+{ }
+
 message_writer::message_writer(message_ptr const& msg)
 :
 	msg_(msg),

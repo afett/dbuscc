@@ -40,6 +40,7 @@ void test::basic()
 	dbuscc::mock::pending_call pending;
 	dbuscc::mock::timeout timeout;
 	dbuscc::mock::watch watch;
+	dbuscc::mock::message_writer writer;
 }
 
 }}
