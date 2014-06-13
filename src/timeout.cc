@@ -52,6 +52,8 @@ public:
 	glue::timeout & glue();
 	DBusTimeout *raw();
 
+	void wrap();
+
 	struct wrapper : public ptr_wrapper<glue::timeout_ptr> {
 		wrapper(glue::timeout_ptr const& ptr)
 		: ptr_wrapper<glue::timeout_ptr>(ptr)
@@ -74,6 +76,13 @@ private:
 timeout::timeout(DBusTimeout *raw)
 :
 	raw_(raw)
+{
+	DBUSCC_ASSERT(raw_);
+	wrapper *data(new wrapper(shared_from_this()));
+	dbus_timeout_set_data(raw_, data, &wrapper::delete_wrapper);
+}
+
+void timeout::wrap()
 {
 	DBUSCC_ASSERT(raw_);
 	wrapper *data(new wrapper(shared_from_this()));
@@ -134,7 +143,10 @@ namespace glue {
 
 timeout_weak_ptr timeout::create(DBusTimeout *raw)
 {
-	return timeout_ptr(new internal::timeout(raw));
+	internal::timeout *t(new internal::timeout(raw));
+	timeout_ptr res(t);
+	t->wrap();
+	return res;
 }
 
 void timeout::toggled(DBusTimeout *raw, void *)

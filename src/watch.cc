@@ -53,6 +53,8 @@ public:
 	glue::watch & glue();
 	DBusWatch *raw();
 
+	void wrap();
+
 	struct wrapper : public ptr_wrapper<glue::watch_ptr> {
 		wrapper(glue::watch_ptr const& ptr)
 		: ptr_wrapper<glue::watch_ptr>(ptr)
@@ -75,6 +77,11 @@ private:
 watch::watch(DBusWatch *raw)
 :
 	raw_(raw)
+{
+	DBUSCC_ASSERT(raw_);
+}
+
+void watch::wrap()
 {
 	DBUSCC_ASSERT(raw_);
 	wrapper *data(new wrapper(shared_from_this()));
@@ -174,7 +181,10 @@ namespace glue {
 
 watch_weak_ptr watch::create(DBusWatch *raw)
 {
-	return watch_ptr(new internal::watch(raw));
+	internal::watch *w(new internal::watch(raw));
+	watch_ptr res(w);
+	w->wrap();
+	return res;
 }
 
 void watch::toggled(DBusWatch *raw, void *)
