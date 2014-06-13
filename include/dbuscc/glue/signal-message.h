@@ -41,6 +41,7 @@ class signal_message :
 	public dbuscc::signal_message
 {
 public:
+	static signal_message_ptr create(const char*, const char *, const char *);
 	static signal_message_ptr create(DBusMessage *);
 };
 

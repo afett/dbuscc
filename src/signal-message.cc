@@ -28,6 +28,8 @@
 
 #include <dbuscc/glue/message-writer.h>
 #include <dbuscc/glue/signal-message.h>
+#include <dbuscc/object-path.h>
+#include <dbuscc/interface.h>
 
 #include "xassert.h"
 
@@ -84,4 +86,18 @@ signal_message::create(DBusMessage *raw)
 	return signal_message_ptr(new internal::signal_message(raw));
 }
 
-}}
+signal_message_ptr
+signal_message::create(const char* path, const char *iface, const char *name)
+{
+	return create(dbus_message_new_signal(path, iface, name));
+}
+
+} // glue
+
+signal_message_ptr signal_message::create(
+	object_path const& path, interface const& iface, std::string const& name)
+{
+	return glue::signal_message::create(path.c_str(), iface.c_str(), name.c_str());
+}
+
+}

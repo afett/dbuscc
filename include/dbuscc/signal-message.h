@@ -29,12 +29,18 @@
 #ifndef DBUSCC_SIGNAL_MESSAGE_H
 #define DBUSCC_SIGNAL_MESSAGE_H
 
+#include <dbuscc/pointer.h>
 #include <dbuscc/message.h>
 
 namespace dbuscc {
 
 class signal_message : public message {
 public:
+	static signal_message_ptr create(
+		object_path const&,
+		interface const&,
+		std::string const&);
+
 	virtual ~signal_message() {}
 };
 
