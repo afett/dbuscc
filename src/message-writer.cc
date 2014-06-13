@@ -57,6 +57,11 @@ message_writer & message_writer::operator=(message_writer const& o)
 	return *this;
 }
 
+message_writer::~message_writer()
+{
+	impl_.reset();
+}
+
 bool message_writer::push_uint8(uint8_t v)
 {
 	return impl_->append_basic(DBUS_TYPE_BYTE, &v);

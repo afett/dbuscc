@@ -40,6 +40,7 @@ public:
 	message_writer(message_ptr const&);
 	message_writer(message_writer const&);
 	message_writer & operator=(message_writer const&);
+	~message_writer();
 
 	bool push_uint8(uint8_t);
 	bool push_bool(bool);
