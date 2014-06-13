@@ -69,6 +69,8 @@ public:
 	DispatchState dispatch_state() const;
 	DispatchState dispatch();
 
+	void install_handlers();
+
 	DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add();
 	DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add();
 	DBUSCC_SIGNAL(void(DispatchState)) & on_dispatch_state();
@@ -188,6 +190,13 @@ DBusPendingCall *connection::call(DBusMessage *msg)
 	return pending_return;
 }
 
+void connection::install_handlers()
+{
+	install_watch_handler();
+	install_timeout_handler();
+	install_dispatch_handler();
+}
+
 void connection::install_watch_handler()
 {
 	if (watch_handler_installed_) {
@@ -220,7 +229,6 @@ dbus_bool_t connection::add_watch(DBusWatch *raw_watch, void *data)
 
 DBUSCC_SIGNAL(void(watch_weak_ptr)) & connection::on_watch_add()
 {
-	install_watch_handler();
 	return on_watch_add_;
 }
 
@@ -256,7 +264,6 @@ dbus_bool_t connection::add_timeout(DBusTimeout *raw_timeout, void *data)
 
 DBUSCC_SIGNAL(void(timeout_weak_ptr)) & connection::on_timeout_add()
 {
-	install_timeout_handler();
 	return on_timeout_add_;
 }
 
@@ -302,7 +309,6 @@ void connection::dispatch_state_changed(
 
 DBUSCC_SIGNAL(void(connection::DispatchState)) & connection::on_dispatch_state()
 {
-	install_dispatch_handler();
 	return on_dispatch_state_;
 }
 

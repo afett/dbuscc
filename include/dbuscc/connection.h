@@ -49,6 +49,7 @@ public:
 	virtual DispatchState dispatch_state() const = 0;
 	virtual DispatchState dispatch() = 0;
 
+	virtual void install_handlers() = 0;
 	virtual DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add() = 0;
 	virtual DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add() = 0;
 	virtual DBUSCC_SIGNAL(void(DispatchState)) & on_dispatch_state() = 0;
