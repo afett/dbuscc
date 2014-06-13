@@ -9,7 +9,7 @@
 #include <boost/bind.hpp>
 
 #include <stdio.h>
-#define DBUSCC_TRACE \
+#define TRACE() \
 	fprintf(stderr, "%s:%d\n", __PRETTY_FUNCTION__, __LINE__)
 
 namespace dbuscc {
@@ -44,7 +44,7 @@ public:
 
 	void on_watch_add(dbuscc::watch_weak_ptr const& watch)
 	{
-		DBUSCC_TRACE;
+		TRACE();
 		boost::shared_ptr<io_ctx> ctx(new io_ctx);
 		ctx->watch = watch;
 		dbuscc::watch_ptr w(ctx->watch.lock());
@@ -54,6 +54,7 @@ public:
 
 	void on_timeout_add(dbuscc::timeout_weak_ptr const& timeout)
 	{
+		TRACE();
 		boost::shared_ptr<timer_ctx> ctx(new timer_ctx);
 		ctx->timeout = timeout;
 		dbuscc::timeout_ptr t(ctx->timeout.lock());
@@ -63,6 +64,7 @@ public:
 
 	void on_watch_change(boost::shared_ptr<io_ctx> const& ctx)
 	{
+		TRACE();
 		dbuscc::watch_ptr w(ctx->watch.lock());
 		if (!w) {
 			return;
@@ -89,6 +91,7 @@ public:
 
 	void on_io_ready(dbuscc::watch_weak_ptr const& ww, tscb::ioready_events events)
 	{
+		TRACE();
 		dbuscc::watch_ptr w(ww.lock());
 		if (!w) {
 			return;
@@ -112,6 +115,7 @@ public:
 
 	void on_timeout_change(boost::shared_ptr<timer_ctx> const& ctx)
 	{
+		TRACE();
 		dbuscc::timeout_ptr timeout(ctx->timeout.lock());
 		if (!timeout) {
 			return;
@@ -129,6 +133,7 @@ public:
 
 	bool on_timer(boost::posix_time::ptime & now, dbuscc::timeout_weak_ptr const& wt)
 	{
+		TRACE();
 		dbuscc::timeout_ptr t(wt.lock());
 		if (!t) {
 			return false;
@@ -141,6 +146,7 @@ public:
 
 	void on_dispatch_state(dbuscc::connection::DispatchState state)
 	{
+		TRACE();
 		if (state != dbuscc::connection::DISPATCH_COMPLETE) {
 			reactor_.post(boost::bind(&tscb_adapter::do_dispatch, this));
 		}
@@ -148,6 +154,7 @@ public:
 
 	void do_dispatch()
 	{
+		TRACE();
 		on_dispatch_state(conn_->dispatch());
 	}
 
