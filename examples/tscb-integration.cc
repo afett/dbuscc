@@ -3,6 +3,10 @@
 #include <dbuscc/connection.h>
 #include <dbuscc/watch.h>
 #include <dbuscc/timeout.h>
+#include <dbuscc/object-path.h>
+#include <dbuscc/interface.h>
+#include <dbuscc/signal-message.h>
+
 #include <tscb/dispatch>
 #include <tscb/ioready>
 
@@ -11,6 +15,9 @@
 #include <stdio.h>
 #define TRACE() \
 	fprintf(stderr, "%s:%d\n", __PRETTY_FUNCTION__, __LINE__)
+
+#define TRACE_MSG(msg) \
+	fprintf(stderr, msg " in %s:%d\n", __PRETTY_FUNCTION__, __LINE__)
 
 namespace dbuscc {
 
@@ -31,6 +38,8 @@ public:
 		conn_->on_dispatch_state().connect(
 			boost::bind(&tscb_adapter::on_dispatch_state, this, _1));
 		conn_->install_handlers();
+
+		do_dispatch();
 	}
 
 	struct io_ctx {
@@ -79,9 +88,11 @@ public:
 		if (w->enabled()) {
 			if (w->flags() & dbuscc::watch::FLAG_READ) {
 				events |= tscb::ioready_input;
+				TRACE_MSG("read");
 			}
 			if (w->flags() & dbuscc::watch::FLAG_WRITE) {
 				events |= tscb::ioready_output;
+				TRACE_MSG("write");
 			}
 		}
 
@@ -177,6 +188,24 @@ int main()
 	dbuscc::connection_ptr conn(
 		dbus->open(dbuscc::bus::TYPE_SESSION, err));
 	dbuscc::tscb_adapter adapter(reactor, conn);
+
+	dbuscc::message_ptr msg(
+		dbuscc::signal_message::create(
+			dbuscc::object_path("/foo"),
+			dbuscc::interface("foo.bar"),
+			"my_signal"));
+
+	if (!conn->send(msg)) {
+		return 1;
+	}
+
+	if (!conn->send(msg)) {
+		return 1;
+	}
+
+	if (!conn->send(msg)) {
+		return 1;
+	}
 
 	for (;;) {
 		reactor.dispatch();
