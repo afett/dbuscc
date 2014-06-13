@@ -23,7 +23,11 @@ OBJ = $(SRC:%.cc=%.o)
 TEST_SRC = $(wildcard tests/*.cc)
 TEST_OBJ = $(TEST_SRC:%.cc=%.o)
 
+CONFIG = include/dbuscc/config.h
+
 all: $(TARGET) $(TESTS)
+
+$(OBJ): $(CONFIG)
 
 $(TARGET): $(OBJ)
 	$(CXX) -o $@ $(OBJ) $(LDFLAGS) -shared $(LIBS)
