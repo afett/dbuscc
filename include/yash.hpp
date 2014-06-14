@@ -29,8 +29,8 @@
 
 #include <cassert>
 #include <tr1/functional>
-#include <tr1/memory>
 #include <vector>
+#include <boost/shared_ptr.hpp>
 
 // yet another signal library^W header
 
@@ -81,8 +81,8 @@ public:
 	}
 
 private:
-	typedef std::tr1::weak_ptr<detail::callback_base> callback_weak_ptr;
-	typedef std::tr1::shared_ptr<detail::callback_base> callback_ptr;
+	typedef boost::weak_ptr<detail::callback_base> callback_weak_ptr;
+	typedef boost::shared_ptr<detail::callback_base> callback_ptr;
 
 	template <typename T> friend class signal;
 	connection(callback_ptr const& cb) : cb_(cb) { }
@@ -259,8 +259,8 @@ private:
 		slot_type fn;
 	};
 
-	typedef std::tr1::shared_ptr<callback> callback_ptr;
-	typedef std::tr1::weak_ptr<callback> callback_weak_ptr;
+	typedef boost::shared_ptr<callback> callback_ptr;
+	typedef boost::weak_ptr<callback> callback_weak_ptr;
 
 	callback_ptr add_callback(slot_type const& slot)
 	{
