@@ -29,12 +29,12 @@
 #define DBUSCC_WATCH_H
 
 #include <dbus/dbus.h>
-#include <dbuscc/forward.h>
+#include <dbuscc/pointer.h>
 #include <dbuscc/signal-slots.h>
 
 namespace dbuscc {
 
-class watch {
+class watch : public ref_counter<watch> {
 public:
 	enum Flags {
 		FLAG_NONE   = 0,

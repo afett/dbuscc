@@ -28,6 +28,7 @@
 
 #include <dbuscc/object-path.h>
 #include <dbuscc/glue/message.h>
+#include <dbuscc/message.h>
 #include <dbuscc/glue/message-writer.h>
 
 #include "xassert.h"

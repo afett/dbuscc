@@ -26,15 +26,18 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <dbuscc/glue/message.h>
 #include <dbuscc/glue/message-writer.h>
-#include <dbuscc/glue/return-message.h>
 
 #include "xassert.h"
 
 namespace dbuscc {
 namespace internal {
 
-class return_message : public glue::return_message {
+class return_message :
+	public glue::message,
+	public dbuscc::return_message
+{
 public:
 	return_message(DBusMessage *);
 	~return_message();
@@ -60,7 +63,7 @@ return_message::~return_message()
 
 message_writer return_message::create_writer()
 {
-	return message_writer(shared_from_this());
+	return message_writer(message_ptr(this));
 }
 
 glue::message & return_message::glue()
@@ -79,9 +82,9 @@ return_message::raw()
 namespace glue {
 
 return_message_ptr
-return_message::create(DBusMessage *raw)
+message::create_return(DBusMessage *raw)
 {
-	return return_message_ptr(new internal::return_message(raw));
+	return new internal::return_message(raw);
 }
 
 }}

@@ -43,34 +43,32 @@ public:
 	}
 
 	struct io_ctx {
-		dbuscc::watch_weak_ptr watch;
+		dbuscc::watch_ptr watch;
 		tscb::ioready_connection conn;
 	};
 
 	struct timer_ctx {
-		dbuscc::timeout_weak_ptr timeout;
+		dbuscc::timeout_ptr timeout;
 		tscb::timer_connection conn;
 	};
 
-	void on_watch_add(dbuscc::watch_weak_ptr const& watch)
+	void on_watch_add(dbuscc::watch_ptr const& watch)
 	{
 		TRACE();
 		boost::shared_ptr<io_ctx> ctx(new io_ctx);
 		ctx->watch = watch;
-		dbuscc::watch_ptr w(ctx->watch.lock());
-		w->on_change().connect(boost::bind(
+		watch->on_change().connect(boost::bind(
 			&tscb_adapter::on_watch_change, this, ctx));
 		reactor_.post(boost::bind(
 			&tscb_adapter::on_watch_change, this, ctx));
 	}
 
-	void on_timeout_add(dbuscc::timeout_weak_ptr const& timeout)
+	void on_timeout_add(dbuscc::timeout_ptr const& timeout)
 	{
 		TRACE();
 		boost::shared_ptr<timer_ctx> ctx(new timer_ctx);
 		ctx->timeout = timeout;
-		dbuscc::timeout_ptr t(ctx->timeout.lock());
-		t->on_change().connect(boost::bind(
+		timeout->on_change().connect(boost::bind(
 			&tscb_adapter::on_timeout_change, this, ctx));
 		reactor_.post(boost::bind(
 			&tscb_adapter::on_timeout_change, this, ctx));
@@ -79,18 +77,13 @@ public:
 	void on_watch_change(boost::shared_ptr<io_ctx> const& ctx)
 	{
 		TRACE();
-		dbuscc::watch_ptr w(ctx->watch.lock());
-		if (!w) {
-			return;
-		}
-
 		tscb::ioready_events events(tscb::ioready_none);
-		if (w->enabled()) {
-			if (w->flags() & dbuscc::watch::FLAG_READ) {
+		if (ctx->watch->enabled()) {
+			if (ctx->watch->flags() & dbuscc::watch::FLAG_READ) {
 				events |= tscb::ioready_input;
 				TRACE_MSG("read");
 			}
-			if (w->flags() & dbuscc::watch::FLAG_WRITE) {
+			if (ctx->watch->flags() & dbuscc::watch::FLAG_WRITE) {
 				events |= tscb::ioready_output;
 				TRACE_MSG("write");
 			}
@@ -101,18 +94,13 @@ public:
 		} else {
 			ctx->conn = reactor_.watch(
 				boost::bind(&tscb_adapter::on_io_ready, this, ctx->watch, _1),
-				w->fd(), events);
+				ctx->watch->fd(), events);
 		}
 	}
 
-	void on_io_ready(dbuscc::watch_weak_ptr const& ww, tscb::ioready_events events)
+	void on_io_ready(dbuscc::watch_ptr const& watch, tscb::ioready_events events)
 	{
 		TRACE();
-		dbuscc::watch_ptr w(ww.lock());
-		if (!w) {
-			return;
-		}
-
 		dbuscc::watch::Flags flags(dbuscc::watch::FLAG_NONE);
 		if (events & tscb::ioready_input) {
 			flags |= dbuscc::watch::FLAG_READ;
@@ -126,37 +114,27 @@ public:
 		if (events & tscb::ioready_hangup) {
 			flags |= dbuscc::watch::FLAG_HANGUP;
 		}
-		w->handle(flags);
+		watch->handle(flags);
 	}
 
 	void on_timeout_change(boost::shared_ptr<timer_ctx> const& ctx)
 	{
 		TRACE();
-		dbuscc::timeout_ptr timeout(ctx->timeout.lock());
-		if (!timeout) {
-			return;
-		}
-
 		ctx->conn.disconnect();
-		if (timeout->enabled()) {
+		if (ctx->timeout->enabled()) {
 			boost::posix_time::ptime when(tscb::monotonic_time() +
-				boost::posix_time::milliseconds(timeout->ms_interval()));
+				boost::posix_time::milliseconds(ctx->timeout->ms_interval()));
 
 			reactor_.timer(boost::bind(
 				&tscb_adapter::on_timer, this, _1, ctx->timeout), when);
 		}
 	}
 
-	bool on_timer(boost::posix_time::ptime & now, dbuscc::timeout_weak_ptr const& wt)
+	bool on_timer(boost::posix_time::ptime & now, dbuscc::timeout_ptr const& timeout)
 	{
 		TRACE();
-		dbuscc::timeout_ptr t(wt.lock());
-		if (!t) {
-			return false;
-		}
-
-		t->handle();
-		now += boost::posix_time::milliseconds(t->ms_interval());
+		timeout->handle();
+		now += boost::posix_time::milliseconds(timeout->ms_interval());
 		return true;
 	}
 

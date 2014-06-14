@@ -29,12 +29,12 @@
 #define DBUSCC_TIMEOUT_H
 
 #include <dbus/dbus.h>
-#include <dbuscc/forward.h>
+#include <dbuscc/pointer.h>
 #include <dbuscc/signal-slots.h>
 
 namespace dbuscc {
 
-class timeout {
+class timeout : public ref_counter<timeout> {
 public:
 	virtual ~timeout() { }
 	virtual DBUSCC_SIGNAL(void(void)) & on_change() = 0;

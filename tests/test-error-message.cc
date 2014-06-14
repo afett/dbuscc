@@ -1,7 +1,5 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <dbuscc/glue/error-message.h>
-
 namespace unittests {
 namespace error_message {
 

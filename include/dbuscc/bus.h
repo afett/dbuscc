@@ -33,7 +33,7 @@
 
 namespace dbuscc {
 
-class bus {
+class bus : public ref_counter<bus> {
 public:
 	enum Type {
 		TYPE_SESSION,

@@ -29,11 +29,11 @@
 #ifndef DBUSCC_MESSAGE_H
 #define DBUSCC_MESSAGE_H
 
-#include <dbuscc/forward.h>
+#include <dbuscc/pointer.h>
 
 namespace dbuscc {
 
-class message {
+class message : public ref_counter<message> {
 public:
 	virtual ~message() {}
 	virtual message_writer create_writer() = 0;

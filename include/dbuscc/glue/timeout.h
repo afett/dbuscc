@@ -30,15 +30,14 @@
 #define DBUSCC_GLUE_TIMEOUT_H
 
 #include <dbus/dbus.h>
-#include <dbuscc/pointer.h>
 #include <dbuscc/timeout.h>
 
 namespace dbuscc {
 namespace glue {
 
-class timeout : public dbuscc::timeout {
+class timeout {
 public:
-	static timeout_weak_ptr create(DBusTimeout *);
+	static timeout_ptr create(DBusTimeout *);
 	static void toggled(DBusTimeout *, void *);
 	static void removed(DBusTimeout *, void *);
 
@@ -47,7 +46,6 @@ public:
 
 	virtual ~timeout() {}
 	virtual DBusTimeout *raw() = 0;
-
 };
 
 }}

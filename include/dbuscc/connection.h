@@ -34,7 +34,7 @@
 
 namespace dbuscc {
 
-class connection {
+class connection : public ref_counter<connection> {
 public:
 	enum DispatchState {
 		DISPATCH_DATA_REMAINS,
@@ -65,8 +65,8 @@ public:
 	 * will in any case)
 	 */
 	virtual void install_handlers() = 0;
-	virtual DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add() = 0;
-	virtual DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add() = 0;
+	virtual DBUSCC_SIGNAL(void(watch_ptr)) & on_watch_add() = 0;
+	virtual DBUSCC_SIGNAL(void(timeout_ptr)) & on_timeout_add() = 0;
 	virtual DBUSCC_SIGNAL(void(DispatchState)) & on_dispatch_state() = 0;
 
 	virtual glue::connection & glue() = 0;

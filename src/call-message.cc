@@ -26,15 +26,18 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <dbuscc/glue/message.h>
 #include <dbuscc/glue/message-writer.h>
-#include <dbuscc/glue/call-message.h>
 
 #include "xassert.h"
 
 namespace dbuscc {
 namespace internal {
 
-class call_message : public glue::call_message {
+class call_message :
+	public dbuscc::call_message,
+	public glue::message
+{
 public:
 	call_message(DBusMessage *);
 	~call_message();
@@ -60,7 +63,7 @@ call_message::~call_message()
 
 message_writer call_message::create_writer()
 {
-	return message_writer(shared_from_this());
+	return message_writer(this);
 }
 
 glue::message & call_message::glue()
@@ -79,9 +82,9 @@ call_message::raw()
 namespace glue {
 
 call_message_ptr
-call_message::create(DBusMessage *raw)
+message::create_call(DBusMessage *raw)
 {
-	return call_message_ptr(new internal::call_message(raw));
+	return new internal::call_message(raw);
 }
 
 }}

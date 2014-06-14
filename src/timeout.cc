@@ -28,17 +28,18 @@
 
 #include <dbuscc/glue/timeout.h>
 
-#include "ptr-wrapper.h"
 #include "xassert.h"
 
 namespace dbuscc {
 namespace internal {
 
 class timeout :
-	public glue::timeout,
-	public DBUSCC_SHARED_FROM_THIS(timeout) {
+	public dbuscc::timeout,
+	public glue::timeout
+{
 public:
 	timeout(DBusTimeout *);
+	static timeout_ptr from_raw(DBusTimeout *);
 
 	DBUSCC_SIGNAL(void(void)) & on_change();
 	DBUSCC_SIGNAL(void(void)) & on_remove();
@@ -52,41 +53,38 @@ public:
 	glue::timeout & glue();
 	DBusTimeout *raw();
 
-	void wrap();
-
-	struct wrapper : public ptr_wrapper<glue::timeout_ptr> {
-		wrapper(glue::timeout_ptr const& ptr)
-		: ptr_wrapper<glue::timeout_ptr>(ptr)
-		{ }
-
-		static glue::timeout_ptr & unwrap(DBusTimeout *raw)
-		{
-			void *data(dbus_timeout_get_data(raw));
-			return self(data)->ptr_;
-		}
-	};
-
 private:
+	static void unref(void *);
 
 	DBusTimeout *raw_;
+	bool removed_;
 	DBUSCC_SIGNAL(void(void)) on_change_;
 	DBUSCC_SIGNAL(void(void)) on_remove_;
 };
 
-timeout::timeout(DBusTimeout *raw)
-:
-	raw_(raw)
+timeout_ptr timeout::from_raw(DBusTimeout *raw)
 {
-	DBUSCC_ASSERT(raw_);
-	wrapper *data(new wrapper(shared_from_this()));
-	dbus_timeout_set_data(raw_, data, &wrapper::delete_wrapper);
+	void *data(dbus_timeout_get_data(raw));
+	DBUSCC_ASSERT(data);
+	timeout *self(static_cast<timeout*>(data));
+	return timeout_ptr(self);
 }
 
-void timeout::wrap()
+void timeout::unref(void *data)
+{
+	DBUSCC_ASSERT(data);
+	timeout *self(static_cast<timeout*>(data));
+	intrusive_ptr_release(self);
+}
+
+timeout::timeout(DBusTimeout *raw)
+:
+	raw_(raw),
+	removed_(false)
 {
 	DBUSCC_ASSERT(raw_);
-	wrapper *data(new wrapper(shared_from_this()));
-	dbus_timeout_set_data(raw_, data, &wrapper::delete_wrapper);
+	intrusive_ptr_add_ref(this);
+	dbus_timeout_set_data(raw_, this, &timeout::unref);
 }
 
 glue::timeout & timeout::glue()
@@ -101,18 +99,30 @@ DBusTimeout *timeout::raw()
 
 int timeout::ms_interval() const
 {
+	if (removed_) {
+		return -1;
+	}
+
 	DBUSCC_ASSERT(raw_);
 	return dbus_timeout_get_interval(raw_);
 }
 
 bool timeout::handle()
 {
+	if (removed_) {
+		return false;
+	}
+
 	DBUSCC_ASSERT(raw_);
 	return dbus_timeout_handle(raw_);
 }
 
 bool timeout::enabled() const
 {
+	if (removed_) {
+		return false;
+	}
+
 	DBUSCC_ASSERT(raw_);
 	return dbus_timeout_get_enabled(raw_);
 }
@@ -134,6 +144,8 @@ void timeout::notify_toggled()
 
 void timeout::notify_removed()
 {
+	removed_ = true;
+	raw_ = 0;
 	on_remove_();
 }
 
@@ -141,24 +153,19 @@ void timeout::notify_removed()
 
 namespace glue {
 
-timeout_weak_ptr timeout::create(DBusTimeout *raw)
+timeout_ptr timeout::create(DBusTimeout *raw)
 {
-	internal::timeout *t(new internal::timeout(raw));
-	timeout_ptr res(t);
-	t->wrap();
-	return res;
+	return new internal::timeout(raw);
 }
 
 void timeout::toggled(DBusTimeout *raw, void *)
 {
-	DBUSCC_ASSERT(raw);
-	internal::timeout::wrapper::unwrap(raw)->notify_toggled();
+	internal::timeout::from_raw(raw)->glue().notify_toggled();
 }
 
 void timeout::removed(DBusTimeout *raw, void *)
 {
-	DBUSCC_ASSERT(raw);
-	internal::timeout::wrapper::unwrap(raw)->notify_removed();
+	internal::timeout::from_raw(raw)->glue().notify_removed();
 }
 
 }

@@ -30,13 +30,12 @@
 #define DBUSCC_GLUE_PENDING_CALL_H
 
 #include <dbus/dbus.h>
-#include <dbuscc/pointer.h>
 #include <dbuscc/pending-call.h>
 
 namespace dbuscc {
 namespace glue {
 
-class pending_call : public dbuscc::pending_call {
+class pending_call {
 public:
 	static pending_call_ptr create(DBusPendingCall *);
 	virtual DBusPendingCall *raw() = 0;

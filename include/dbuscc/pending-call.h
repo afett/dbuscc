@@ -29,11 +29,12 @@
 #ifndef DBUSCC_PENDING_CALL_H
 #define DBUSCC_PENDING_CALL_H
 
-#include <dbuscc/forward.h>
+#include <dbuscc/pointer.h>
+#include <dbuscc/signal-slots.h>
 
 namespace dbuscc {
 
-class pending_call {
+class pending_call : public ref_counter<pending_call> {
 public:
 	virtual ~pending_call() {}
 	virtual glue::pending_call & glue() = 0;

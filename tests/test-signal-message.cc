@@ -1,7 +1,5 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <dbuscc/glue/signal-message.h>
-
 namespace unittests {
 namespace signal_message {
 

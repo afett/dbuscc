@@ -30,15 +30,14 @@
 #define DBUSCC_GLUE_WATCH_H
 
 #include <dbus/dbus.h>
-#include <dbuscc/pointer.h>
 #include <dbuscc/watch.h>
 
 namespace dbuscc {
 namespace glue {
 
-class watch : public dbuscc::watch {
+class watch {
 public:
-	static watch_weak_ptr create(DBusWatch *);
+	static watch_ptr create(DBusWatch *);
 	static void toggled(DBusWatch *, void *);
 	static void removed(DBusWatch *, void *);
 

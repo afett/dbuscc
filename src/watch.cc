@@ -28,17 +28,18 @@
 
 #include <dbuscc/glue/watch.h>
 
-#include "ptr-wrapper.h"
 #include "xassert.h"
 
 namespace dbuscc {
 namespace internal {
 
 class watch :
-	public glue::watch,
-	public DBUSCC_SHARED_FROM_THIS(watch) {
+	public dbuscc::watch,
+	public glue::watch
+{
 public:
 	watch(DBusWatch *);
+	static watch_ptr from_raw(DBusWatch *);
 
 	DBUSCC_SIGNAL(void(void)) & on_change();
 	DBUSCC_SIGNAL(void(void)) & on_remove();
@@ -53,39 +54,38 @@ public:
 	glue::watch & glue();
 	DBusWatch *raw();
 
-	void wrap();
-
-	struct wrapper : public ptr_wrapper<glue::watch_ptr> {
-		wrapper(glue::watch_ptr const& ptr)
-		: ptr_wrapper<glue::watch_ptr>(ptr)
-		{ }
-
-		static glue::watch_ptr & unwrap(DBusWatch *raw)
-		{
-			void *data(dbus_watch_get_data(raw));
-			return self(data)->ptr_;
-		}
-	};
-
 private:
+	static void unref(void *);
 
 	DBusWatch *raw_;
+	bool removed_;
 	DBUSCC_SIGNAL(void(void)) on_change_;
 	DBUSCC_SIGNAL(void(void)) on_remove_;
 };
 
-watch::watch(DBusWatch *raw)
-:
-	raw_(raw)
+watch_ptr watch::from_raw(DBusWatch *raw)
 {
-	DBUSCC_ASSERT(raw_);
+	void *data(dbus_watch_get_data(raw));
+	DBUSCC_ASSERT(data);
+	watch *self(static_cast<watch*>(data));
+	return watch_ptr(self);
 }
 
-void watch::wrap()
+void watch::unref(void *data)
+{
+	DBUSCC_ASSERT(data);
+	watch *self(static_cast<watch*>(data));
+	intrusive_ptr_release(self);
+}
+
+watch::watch(DBusWatch *raw)
+:
+	raw_(raw),
+	removed_(false)
 {
 	DBUSCC_ASSERT(raw_);
-	wrapper *data(new wrapper(shared_from_this()));
-	dbus_watch_set_data(raw_, data, &wrapper::delete_wrapper);
+	intrusive_ptr_add_ref(this);
+	dbus_watch_set_data(raw_, this, &watch::unref);
 }
 
 glue::watch & watch::glue()
@@ -100,19 +100,22 @@ DBusWatch *watch::raw()
 
 int watch::fd() const
 {
+	if (removed_) {
+		return false;
+	}
+
 	DBUSCC_ASSERT(raw_);
 	return dbus_watch_get_unix_fd(raw_);
 }
 
 watch::Flags watch::flags() const
 {
-	DBUSCC_ASSERT(raw_);
 	Flags ret(FLAG_NONE);
-
-	if (!enabled()) {
+	if (removed_ || !enabled()) {
 		return ret;
 	}
 
+	DBUSCC_ASSERT(raw_);
 	unsigned int dbus_flags(dbus_watch_get_flags(raw_));
 	if (dbus_flags & DBUS_WATCH_READABLE) {
 		ret |= FLAG_READ;
@@ -127,7 +130,9 @@ watch::Flags watch::flags() const
 
 bool watch::handle(Flags flags)
 {
-	DBUSCC_ASSERT(raw_);
+	if (removed_) {
+		return false;
+	}
 
 	unsigned int dbus_flags(0);
 	if (flags & FLAG_READ) {
@@ -146,11 +151,16 @@ bool watch::handle(Flags flags)
 		dbus_flags |= DBUS_WATCH_ERROR;
 	}
 
+	DBUSCC_ASSERT(raw_);
 	return dbus_watch_handle(raw_, dbus_flags);
 }
 
 bool watch::enabled() const
 {
+	if (removed_) {
+		return false;
+	}
+
 	DBUSCC_ASSERT(raw_);
 	return dbus_watch_get_enabled(raw_);
 }
@@ -172,6 +182,8 @@ void watch::notify_toggled()
 
 void watch::notify_removed()
 {
+	removed_ = true;
+	raw_ = 0;
 	on_remove_();
 }
 
@@ -179,24 +191,21 @@ void watch::notify_removed()
 
 namespace glue {
 
-watch_weak_ptr watch::create(DBusWatch *raw)
+watch_ptr watch::create(DBusWatch *raw)
 {
-	internal::watch *w(new internal::watch(raw));
-	watch_ptr res(w);
-	w->wrap();
-	return res;
+	return new internal::watch(raw);
 }
 
 void watch::toggled(DBusWatch *raw, void *)
 {
 	DBUSCC_ASSERT(raw);
-	internal::watch::wrapper::unwrap(raw)->notify_toggled();
+	internal::watch::from_raw(raw)->glue().notify_toggled();
 }
 
 void watch::removed(DBusWatch *raw, void *)
 {
 	DBUSCC_ASSERT(raw);
-	internal::watch::wrapper::unwrap(raw)->notify_removed();
+	internal::watch::from_raw(raw)->glue().notify_removed();
 }
 
 }

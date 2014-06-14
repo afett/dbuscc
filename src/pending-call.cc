@@ -33,7 +33,10 @@
 namespace dbuscc {
 namespace internal {
 
-class pending_call : public glue::pending_call {
+class pending_call :
+	public dbuscc::pending_call,
+	public glue::pending_call
+{
 public:
 	pending_call(DBusPendingCall *);
 	~pending_call();

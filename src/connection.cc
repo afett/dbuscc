@@ -26,13 +26,12 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <dbuscc/glue/call-message.h>
+#include <dbuscc/glue/connection.h>
+#include <dbuscc/glue/message.h>
 #include <dbuscc/glue/pending-call.h>
 #include <dbuscc/glue/timeout.h>
 #include <dbuscc/glue/watch.h>
-#include <dbuscc/glue/connection.h>
 
-#include "ptr-wrapper.h"
 #include "trace.h"
 #include "xassert.h"
 
@@ -59,8 +58,8 @@ namespace dbuscc {
 namespace internal {
 
 class connection :
-	public glue::connection,
-	public DBUSCC_SHARED_FROM_THIS(connection)
+	public dbuscc::connection,
+	public glue::connection
 {
 public:
 	connection(DBusConnection *);
@@ -72,8 +71,8 @@ public:
 
 	void install_handlers();
 
-	DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add();
-	DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add();
+	DBUSCC_SIGNAL(void(watch_ptr)) & on_watch_add();
+	DBUSCC_SIGNAL(void(timeout_ptr)) & on_timeout_add();
 	DBUSCC_SIGNAL(void(DispatchState)) & on_dispatch_state();
 
 	glue::connection & glue();
@@ -82,21 +81,12 @@ public:
 	DBusPendingCall *call(DBusMessage *);
 
 protected:
-	DBUSCC_SIGNAL(void(watch_weak_ptr)) on_watch_add_;
-	DBUSCC_SIGNAL(void(timeout_weak_ptr)) on_timeout_add_;
+	DBUSCC_SIGNAL(void(watch_ptr)) on_watch_add_;
+	DBUSCC_SIGNAL(void(timeout_ptr)) on_timeout_add_;
 	DBUSCC_SIGNAL(void(DispatchState)) on_dispatch_state_;
 	DBusConnection *raw_;
 
 private:
-	typedef DBUSCC_WEAK_PTR(connection) connection_weak_ptr;
-	typedef DBUSCC_SHARED_PTR(connection) connection_ptr;
-
-	struct wrapper : public ptr_wrapper<connection_weak_ptr> {
-		wrapper(connection_weak_ptr const& ptr)
-		: ptr_wrapper<connection_weak_ptr>(ptr)
-		{ }
-	};
-
 	static dbus_bool_t add_watch(DBusWatch *, void *);
 	void install_watch_handler();
 
@@ -219,8 +209,9 @@ void connection::install_watch_handler()
 		&connection::add_watch,
 		&glue::watch::removed,
 		&glue::watch::toggled,
-		new wrapper(shared_from_this()),
-		&wrapper::delete_wrapper);
+		this,
+		NULL // no deleter as we destroy the DBusConnection ourselfs
+		);
 
 	watch_handler_installed_ = true;
 }
@@ -231,13 +222,12 @@ dbus_bool_t connection::add_watch(DBusWatch *raw_watch, void *data)
 	DBUSCC_ASSERT(data);
 	DBUSCC_ASSERT(raw_watch);
 
-	connection_ptr self(wrapper::self(data)->ptr_.lock());
-	DBUSCC_ASSERT(self);
+	connection *self(static_cast<connection *>(data));
 	self->on_watch_add_(glue::watch::create(raw_watch));
 	return true;
 }
 
-DBUSCC_SIGNAL(void(watch_weak_ptr)) & connection::on_watch_add()
+DBUSCC_SIGNAL(void(watch_ptr)) & connection::on_watch_add()
 {
 	DBUSCC_TRACE();
 	return on_watch_add_;
@@ -255,8 +245,9 @@ void connection::install_timeout_handler()
 		&connection::add_timeout,
 		&glue::timeout::removed,
 		&glue::timeout::toggled,
-		new wrapper(shared_from_this()),
-		&wrapper::delete_wrapper);
+		this,
+		NULL // no deleter as we destroy the DBusConnection ourselfs
+	);
 
 	timeout_handler_installed_ = true;
 }
@@ -267,13 +258,12 @@ dbus_bool_t connection::add_timeout(DBusTimeout *raw_timeout, void *data)
 	DBUSCC_ASSERT(data);
 	DBUSCC_ASSERT(raw_timeout);
 
-	connection_ptr self(wrapper::self(data)->ptr_.lock());
-	DBUSCC_ASSERT(self);
+	connection *self(static_cast<connection *>(data));
 	self->on_timeout_add_(glue::timeout::create(raw_timeout));
 	return true;
 }
 
-DBUSCC_SIGNAL(void(timeout_weak_ptr)) & connection::on_timeout_add()
+DBUSCC_SIGNAL(void(timeout_ptr)) & connection::on_timeout_add()
 {
 	DBUSCC_TRACE();
 	return on_timeout_add_;
@@ -305,8 +295,9 @@ void connection::install_dispatch_handler()
 	dbus_connection_set_dispatch_status_function(
 		raw_,
 		&connection::dispatch_state_changed,
-		new wrapper(shared_from_this()),
-		&wrapper::delete_wrapper);
+		this,
+		NULL // no deleter as we destroy the DBusConnection ourselfs
+	);
 
 	dispatch_handler_installed_ = true;
 }
@@ -317,8 +308,7 @@ void connection::dispatch_state_changed(
 	DBUSCC_TRACE();
 	DBUSCC_ASSERT(data);
 
-	connection_ptr self(wrapper::self(data)->ptr_.lock());
-	DBUSCC_ASSERT(self);
+	connection *self(static_cast<connection *>(data));
 	self->on_dispatch_state_(::dispatch_state(new_state));
 }
 

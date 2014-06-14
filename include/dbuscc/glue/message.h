@@ -30,17 +30,22 @@
 #define DBUSCC_GLUE_MESSAGE_H
 
 #include <dbus/dbus.h>
-#include <dbuscc/pointer.h>
-#include <dbuscc/message.h>
+#include <dbuscc/signal-message.h>
+#include <dbuscc/call-message.h>
+#include <dbuscc/return-message.h>
+#include <dbuscc/error-message.h>
 
 namespace dbuscc {
 namespace glue {
 
-class message :
-	public dbuscc::message,
-	public DBUSCC_SHARED_FROM_THIS(message)
-{
+class message {
 public:
+	static signal_message_ptr create_signal(DBusMessage *);
+	static signal_message_ptr create_signal(const char*, const char *, const char *);
+	static call_message_ptr create_call(DBusMessage *);
+	static return_message_ptr create_return(DBusMessage *);
+	static error_message_ptr create_error(DBusMessage *);
+
 	virtual ~message() {}
 	virtual DBusMessage *raw() = 0;
 };

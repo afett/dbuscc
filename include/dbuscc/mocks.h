@@ -42,17 +42,17 @@ public:
 	virtual void install_handlers()
 	{ }
 
-	DBUSCC_SIGNAL(void(watch_weak_ptr)) & on_watch_add()
+	DBUSCC_SIGNAL(void(watch_ptr)) & on_watch_add()
 	{ return on_watch_add_; }
 
-	DBUSCC_SIGNAL(void(timeout_weak_ptr)) & on_timeout_add()
+	DBUSCC_SIGNAL(void(timeout_ptr)) & on_timeout_add()
 	{ return on_timeout_add_; }
 
 	DBUSCC_SIGNAL(void(DispatchState)) & on_dispatch_state()
 	{ return on_dispatch_state_; }
 
-	DBUSCC_SIGNAL(void(watch_weak_ptr)) on_watch_add_;
-	DBUSCC_SIGNAL(void(timeout_weak_ptr)) on_timeout_add_;
+	DBUSCC_SIGNAL(void(watch_ptr)) on_watch_add_;
+	DBUSCC_SIGNAL(void(timeout_ptr)) on_timeout_add_;
 	DBUSCC_SIGNAL(void(DispatchState)) on_dispatch_state_;
 };
 

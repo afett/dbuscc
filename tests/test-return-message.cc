@@ -1,7 +1,5 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <dbuscc/glue/return-message.h>
-
 namespace unittests {
 namespace return_message {
 

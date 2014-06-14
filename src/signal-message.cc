@@ -26,8 +26,8 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <dbuscc/glue/message.h>
 #include <dbuscc/glue/message-writer.h>
-#include <dbuscc/glue/signal-message.h>
 #include <dbuscc/object-path.h>
 #include <dbuscc/interface.h>
 
@@ -36,7 +36,10 @@
 namespace dbuscc {
 namespace internal {
 
-class signal_message : public glue::signal_message {
+class signal_message :
+	public dbuscc::signal_message,
+	public glue::message
+{
 public:
 	signal_message(DBusMessage *);
 	~signal_message();
@@ -62,7 +65,7 @@ signal_message::~signal_message()
 
 message_writer signal_message::create_writer()
 {
-	return message_writer(shared_from_this());
+	return message_writer(message_ptr(this));
 }
 
 glue::message & signal_message::glue()
@@ -81,15 +84,15 @@ signal_message::raw()
 namespace glue {
 
 signal_message_ptr
-signal_message::create(DBusMessage *raw)
+message::create_signal(DBusMessage *raw)
 {
-	return signal_message_ptr(new internal::signal_message(raw));
+	return new internal::signal_message(raw);
 }
 
 signal_message_ptr
-signal_message::create(const char* path, const char *iface, const char *name)
+message::create_signal(const char* path, const char *iface, const char *name)
 {
-	return create(dbus_message_new_signal(path, iface, name));
+	return create_signal(dbus_message_new_signal(path, iface, name));
 }
 
 } // glue
@@ -97,7 +100,7 @@ signal_message::create(const char* path, const char *iface, const char *name)
 signal_message_ptr signal_message::create(
 	object_path const& path, interface const& iface, std::string const& name)
 {
-	return glue::signal_message::create(path.c_str(), iface.c_str(), name.c_str());
+	return glue::message::create_signal(path.c_str(), iface.c_str(), name.c_str());
 }
 
 }
