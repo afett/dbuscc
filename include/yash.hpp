@@ -28,8 +28,8 @@
 #define YASH_HPP
 
 #include <cassert>
-#include <tr1/functional>
 #include <vector>
+#include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
 // yet another signal library^W header
@@ -118,7 +118,7 @@ private:
 template <typename T>
 class signal_proxy {
 public:
-	typedef std::tr1::function<T> slot_type;
+	typedef boost::function<T> slot_type;
 
 	virtual connection connect(slot_type const&) = 0;
 	virtual ~signal_proxy() {}

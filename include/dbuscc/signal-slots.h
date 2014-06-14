@@ -31,13 +31,8 @@
 
 #include <dbuscc/config.h>
 
-#if defined(DBUSCC_USE_BOOST_FUNCTION)
 #include <boost/function.hpp>
 #define DBUSCC_FUNCTION(signature) boost::function<signature>
-#else
-#include <tr1/functional>
-#define DBUSCC_FUNCTION(signature) std::tr1::function<signature>
-#endif
 
 #if defined(DBUSCC_USE_BOOST_SIGNALS)
 #include <boost/signals2/signal.hpp>
