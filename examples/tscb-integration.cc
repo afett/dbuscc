@@ -5,6 +5,7 @@
 #include <dbuscc/timeout.h>
 #include <dbuscc/object-path.h>
 #include <dbuscc/interface.h>
+#include <dbuscc/member.h>
 #include <dbuscc/signal-message.h>
 
 #include <tscb/dispatch>
@@ -171,7 +172,7 @@ int main()
 		dbuscc::signal_message::create(
 			dbuscc::object_path("/foo"),
 			dbuscc::interface("foo.bar"),
-			"my_signal"));
+			dbuscc::member("my_signal")));
 
 	if (!conn->send(msg)) {
 		return 1;

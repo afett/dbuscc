@@ -39,7 +39,7 @@ public:
 	static signal_message_ptr create(
 		object_path const&,
 		interface const&,
-		std::string const&);
+		member const&);
 
 	virtual ~signal_message() {}
 };

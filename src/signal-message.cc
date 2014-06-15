@@ -30,6 +30,7 @@
 #include <dbuscc/glue/message-writer.h>
 #include <dbuscc/object-path.h>
 #include <dbuscc/interface.h>
+#include <dbuscc/member.h>
 
 #include "xassert.h"
 
@@ -98,7 +99,7 @@ message::create_signal(const char* path, const char *iface, const char *name)
 } // glue
 
 signal_message_ptr signal_message::create(
-	object_path const& path, interface const& iface, std::string const& name)
+	object_path const& path, interface const& iface, member const& name)
 {
 	return glue::message::create_signal(path.c_str(), iface.c_str(), name.c_str());
 }

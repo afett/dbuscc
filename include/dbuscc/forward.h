@@ -46,6 +46,7 @@ class message_writer;
 class object_path;
 class interface;
 class bus_name;
+class member;
 
 namespace glue {
 

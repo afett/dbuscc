@@ -26,25 +26,32 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DBUSCC_CALL_MESSAGE_H
-#define DBUSCC_CALL_MESSAGE_H
+#ifndef DBUSCC_MEMBER_H
+#define DBUSCC_MEMBER_H
 
-#include <dbuscc/pointer.h>
-#include <dbuscc/message.h>
+#include <string>
 
 namespace dbuscc {
 
-class call_message : public message {
+class member {
 public:
-	static call_message_ptr create(
-		bus_name const&,
-		object_path const&,
-		interface const&,
-		member const&);
+	member();
+	member(member const& o);
+	member & operator=(member const& o);
+	member(std::string const&);
 
-	virtual ~call_message() {}
+	std::string str() const;
+	const char *c_str() const;
+	bool is_valid() const;
+
+private:
+	std::string name_;
 };
+
+bool operator==(member const&, member const&);
+bool operator!=(member const&, member const&);
+bool operator<(member const&, member const&);
 
 }
 
-#endif
+#endif // DBUSCC_MEMBER_H

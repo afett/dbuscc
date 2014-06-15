@@ -31,6 +31,7 @@
 #include <dbuscc/bus-name.h>
 #include <dbuscc/object-path.h>
 #include <dbuscc/interface.h>
+#include <dbuscc/member.h>
 
 #include "xassert.h"
 
@@ -110,7 +111,7 @@ call_message_ptr call_message::create(
 	bus_name const& destination,
 	object_path const& path,
 	interface const& iface,
-	std::string const& name)
+	member const& name)
 {
 	return glue::message::create_call(
 		destination.c_str(),
