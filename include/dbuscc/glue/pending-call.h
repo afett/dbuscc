@@ -38,6 +38,8 @@ namespace glue {
 class pending_call {
 public:
 	static pending_call_ptr create(DBusPendingCall *);
+	static void notify(DBusPendingCall *, void *);
+
 	virtual DBusPendingCall *raw() = 0;
 	virtual ~pending_call() {}
 };

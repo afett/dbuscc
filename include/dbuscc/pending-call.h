@@ -36,8 +36,21 @@ namespace dbuscc {
 
 class pending_call : public ref_counter<pending_call> {
 public:
+	enum State {
+		STATE_PENDING,
+		STATE_ERROR,
+		STATE_TIMEOUT,
+		STATE_COMPLETED,
+		STATE_CANCELED,
+	};
+
 	virtual ~pending_call() {}
+	virtual void cancel() = 0;
+	virtual State state() const = 0;
+	virtual return_message_ptr reply() const = 0;
+	virtual error & reply_error() = 0;
 	virtual glue::pending_call & glue() = 0;
+	virtual DBUSCC_SIGNAL(void(void)) & on_completion() = 0;
 };
 
 }

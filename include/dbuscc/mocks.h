@@ -9,6 +9,7 @@
 #include <dbuscc/pending-call.h>
 #include <dbuscc/timeout.h>
 #include <dbuscc/watch.h>
+#include <dbuscc/error.h>
 
 namespace dbuscc {
 namespace mock {
@@ -115,6 +116,29 @@ public:
 
 class pending_call : public base<dbuscc::pending_call, glue::pending_call> {
 public:
+	virtual DBUSCC_SIGNAL(void(void)) & on_completion()
+	{ return on_completion_; }
+
+	virtual void cancel()
+	{ }
+
+	virtual State state() const
+	{
+		return STATE_PENDING;
+	}
+
+	virtual return_message_ptr reply() const
+	{
+		return return_message_ptr();
+	}
+
+	virtual error & reply_error()
+	{
+		return error_;
+	}
+
+	DBUSCC_SIGNAL(void(void)) on_completion_;
+	error error_;
 };
 
 class timeout : public base<dbuscc::timeout, glue::timeout> {

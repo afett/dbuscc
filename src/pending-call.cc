@@ -27,6 +27,8 @@
 */
 
 #include <dbuscc/glue/pending-call.h>
+#include <dbuscc/glue/message.h>
+#include <dbuscc/glue/error.h>
 
 #include "xassert.h"
 
@@ -40,23 +42,108 @@ class pending_call :
 public:
 	pending_call(DBusPendingCall *);
 	~pending_call();
+
+	State state() const;
+	void cancel();
+	return_message_ptr reply() const;
+	error & reply_error();
+	DBUSCC_SIGNAL(void(void)) & on_completion();
+
 	glue::pending_call & glue();
 	DBusPendingCall *raw();
 
+	void notify();
+
 private:
 	DBusPendingCall *raw_;
+	State state_;
+	return_message_ptr reply_message_;
+	error error_;
+	DBUSCC_SIGNAL(void(void)) on_completion_;
 };
 
 pending_call::pending_call(DBusPendingCall *raw)
 :
-	raw_(raw)
+	raw_(raw),
+	state_(STATE_PENDING),
+	reply_message_(),
+	error_()
 {
 	DBUSCC_ASSERT(raw_);
+
+	dbus_pending_call_set_notify(
+		raw_,
+		&glue::pending_call::notify,
+		this,
+		NULL);
 }
 
 pending_call::~pending_call()
 {
+	DBUSCC_ASSERT(raw_);
+	// cancel the call so that libdbus yields its reference.
+	cancel();
 	dbus_pending_call_unref(raw_);
+}
+
+void pending_call::cancel()
+{
+	DBUSCC_ASSERT(raw_);
+	dbus_pending_call_cancel(raw_);
+	state_ = STATE_CANCELED;
+}
+
+void pending_call::notify()
+{
+	DBUSCC_ASSERT(raw_);
+	DBUSCC_ASSERT(dbus_pending_call_get_completed(raw_));
+	DBusMessage *raw_reply(dbus_pending_call_steal_reply(raw_));
+	// for a timeout an artifical error message will
+	// be created, so we should allways get a message on completion.
+	DBUSCC_ASSERT(raw_reply);
+
+	// we may get a message in calceled state if it was
+	// received before cancel was called....
+	if (state_ == STATE_CANCELED) {
+		dbus_message_unref(raw_reply);
+		// no notification here
+		return;
+	}
+
+	DBUSCC_ASSERT(state_ == STATE_PENDING);
+	if (dbus_set_error_from_message(error_.glue().raw(), raw_reply)) {
+		state_ = (error_.type() == error::TYPE_NO_REPLY) ?
+			STATE_TIMEOUT : STATE_ERROR;
+	} else if (dbus_message_get_type(raw_reply) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
+		reply_message_ = glue::message::create_return(raw_reply);
+	}
+	// the dbus api docs say we must handle all
+	// message types gracefully. so we'll just call
+	// notify an do not deliver a reply if it's not
+	// an error or a method return.
+	state_ = STATE_COMPLETED;
+	dbus_message_unref(raw_reply);
+	on_completion_();
+}
+
+DBUSCC_SIGNAL(void(void)) & pending_call::on_completion()
+{
+	return on_completion_;
+}
+
+pending_call::State pending_call::state() const
+{
+	return state_;
+}
+
+return_message_ptr pending_call::reply() const
+{
+	return reply_message_;
+}
+
+error & pending_call::reply_error()
+{
+	return error_;
 }
 
 glue::pending_call & pending_call::glue()
@@ -78,6 +165,14 @@ pending_call_ptr
 pending_call::create(DBusPendingCall *raw)
 {
 	return pending_call_ptr(new internal::pending_call(raw));
+}
+
+void pending_call::notify(DBusPendingCall *, void *data)
+{
+	DBUSCC_ASSERT(data);
+	internal::pending_call *self(
+		static_cast<internal::pending_call*>(data));
+	self->notify();
 }
 
 }}
