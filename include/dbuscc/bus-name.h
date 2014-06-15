@@ -26,43 +26,32 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DBUSCC_FORWARD_H
-#define DBUSCC_FORWARD_H
+#ifndef DBUSCC_BUS_NAME_H
+#define DBUSCC_BUS_NAME_H
+
+#include <string>
 
 namespace dbuscc {
 
-class bus;
-class error;
-class connection;
-class watch;
-class timeout;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_writer;
-class object_path;
-class interface;
-class bus_name;
+class bus_name {
+public:
+	bus_name();
+	bus_name(bus_name const& o);
+	bus_name & operator=(bus_name const& o);
+	bus_name(std::string const&);
 
-namespace glue {
+	std::string str() const;
+	const char *c_str() const;
+	bool is_valid() const;
 
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_writer;
-class watch;
-class timeout;
+private:
+	std::string name_;
+};
+
+bool operator==(bus_name const&, bus_name const&);
+bool operator!=(bus_name const&, bus_name const&);
+bool operator<(bus_name const&, bus_name const&);
 
 }
 
-}
-
-#endif
+#endif // DBUSCC_BUS_NAME_H
