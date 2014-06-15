@@ -172,7 +172,7 @@ DBUSCC_SIGNAL(void(void)) & watch::on_change()
 
 DBUSCC_SIGNAL(void(void)) & watch::on_remove()
 {
-	return on_change_;
+	return on_remove_;
 }
 
 void watch::notify_toggled()
