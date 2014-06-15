@@ -33,6 +33,8 @@
 
 namespace dbuscc {
 
+std::string session_bus_address();
+
 class bus : public ref_counter<bus> {
 public:
 	enum Type {

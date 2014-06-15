@@ -26,6 +26,8 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <cstdlib>
+
 #include <dbuscc/bus.h>
 #include <dbuscc/glue/connection.h>
 #include <dbuscc/glue/error.h>
@@ -100,6 +102,12 @@ bus::open_private(Type bus, error & e)
 bus_ptr bus::create()
 {
 	return bus_ptr(new internal::bus());
+}
+
+std::string session_bus_address()
+{
+	char *addr(getenv("DBUS_SESSION_BUS_ADDRESS"));
+	return addr ? addr : "";
 }
 
 }
