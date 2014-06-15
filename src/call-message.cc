@@ -28,6 +28,9 @@
 
 #include <dbuscc/glue/message.h>
 #include <dbuscc/glue/message-writer.h>
+#include <dbuscc/bus-name.h>
+#include <dbuscc/object-path.h>
+#include <dbuscc/interface.h>
 
 #include "xassert.h"
 
@@ -87,4 +90,33 @@ message::create_call(DBusMessage *raw)
 	return new internal::call_message(raw);
 }
 
-}}
+call_message_ptr
+message::create_call(
+	const char *destination,
+	const char *path,
+	const char *iface,
+	const char *name)
+{
+	return create_call(dbus_message_new_method_call(
+		destination,
+		path,
+		iface,
+		name));
+}
+
+} // glue
+
+call_message_ptr call_message::create(
+	bus_name const& destination,
+	object_path const& path,
+	interface const& iface,
+	std::string const& name)
+{
+	return glue::message::create_call(
+		destination.c_str(),
+		path.c_str(),
+		iface.c_str(),
+		name.c_str());
+}
+
+}

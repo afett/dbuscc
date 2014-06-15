@@ -43,6 +43,7 @@ public:
 	static signal_message_ptr create_signal(DBusMessage *);
 	static signal_message_ptr create_signal(const char*, const char *, const char *);
 	static call_message_ptr create_call(DBusMessage *);
+	static call_message_ptr create_call(const char *, const char*, const char *, const char *);
 	static return_message_ptr create_return(DBusMessage *);
 	static error_message_ptr create_error(DBusMessage *);
 

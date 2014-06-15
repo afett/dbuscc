@@ -29,12 +29,19 @@
 #ifndef DBUSCC_CALL_MESSAGE_H
 #define DBUSCC_CALL_MESSAGE_H
 
+#include <dbuscc/pointer.h>
 #include <dbuscc/message.h>
 
 namespace dbuscc {
 
 class call_message : public message {
 public:
+	static call_message_ptr create(
+		bus_name const&,
+		object_path const&,
+		interface const&,
+		std::string const&);
+
 	virtual ~call_message() {}
 };
 
