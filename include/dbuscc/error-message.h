@@ -29,6 +29,7 @@
 #ifndef DBUSCC_ERROR_MESSAGE_H
 #define DBUSCC_ERROR_MESSAGE_H
 
+#include <string>
 #include <dbuscc/message.h>
 
 namespace dbuscc {
@@ -36,6 +37,7 @@ namespace dbuscc {
 class error_message : public message {
 public:
 	virtual ~error_message() {}
+	virtual std::string error_name() const = 0;
 };
 
 }

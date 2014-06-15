@@ -41,6 +41,7 @@ class error_message :
 public:
 	error_message(DBusMessage *);
 	~error_message();
+	std::string error_name() const;
 	message_writer create_writer();
 	glue::message & glue();
 	DBusMessage *raw();
@@ -64,6 +65,13 @@ error_message::~error_message()
 message_writer error_message::create_writer()
 {
 	return message_writer(message_ptr(this));
+}
+
+std::string error_message::error_name() const
+{
+	DBUSCC_ASSERT(raw_);
+	const char *name(dbus_message_get_error_name(raw_));
+	return name ? name : "";
 }
 
 glue::message & error_message::glue()
