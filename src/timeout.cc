@@ -134,7 +134,7 @@ DBUSCC_SIGNAL(void(void)) & timeout::on_change()
 
 DBUSCC_SIGNAL(void(void)) & timeout::on_remove()
 {
-	return on_change_;
+	return on_remove_;
 }
 
 void timeout::notify_toggled()
