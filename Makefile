@@ -10,6 +10,7 @@ CXXFLAGS += -g -O0
 endif
 
 DEPS = dbus-1 cppunit
+DEPS += libtscb
 
 CXXFLAGS += $(shell pkg-config --cflags $(DEPS)) -fPIC
 LIBS = -Wl,--as-needed $(shell pkg-config --libs $(DEPS))
@@ -23,9 +24,13 @@ OBJ = $(SRC:%.cc=%.o)
 TEST_SRC = $(wildcard tests/*.cc)
 TEST_OBJ = $(TEST_SRC:%.cc=%.o)
 
+EXAMPLE_SRC = $(wildcard examples/*.cc)
+EXAMPLE_OBJ = $(EXAMPLE_SRC:%.cc=%.o)
+EXAMPLE = tscb-integration
+
 CONFIG = include/dbuscc/config.h
 
-all: $(TARGET) $(TESTS)
+all: $(TARGET) $(TESTS) $(EXAMPLE)
 
 $(OBJ): $(CONFIG)
 
@@ -34,6 +39,9 @@ $(TARGET): $(OBJ)
 
 $(TESTS): $(TARGET) $(TEST_OBJ)
 	$(CXX) -o $@ $(TEST_OBJ) $(LDFLAGS) $(LIBS) -ldbuscc
+
+$(EXAMPLE): $(TARGET) $(EXAMPLE_OBJ)
+	$(CXX) -o $@ $(EXAMPLE_OBJ) $(LDFLAGS) $(LIBS) -ldbuscc
 
 run_tests: $(TESTS)
 	LD_LIBRARY_PATH=. ./$(TESTS)
@@ -44,8 +52,11 @@ run_valgrind: $(TESTS)
 run_gdb: $(TESTS)
 	LD_LIBRARY_PATH=. gdb ./$(TESTS)
 
+run_example: $(EXAMPLE)
+	LD_LIBRARY_PATH=. $(EXAMPLE)
+
 clean:
-	rm -rf $(OBJ) $(TARGET) $(TEST_OBJ) $(TESTS)
+	rm -rf $(OBJ) $(TARGET) $(TEST_OBJ) $(TESTS) $(EXAMPLE_OBJ) $(EXAMPLE)
 
 .PHONY: all clean
 
