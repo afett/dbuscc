@@ -6,7 +6,10 @@
 #include <dbuscc/object-path.h>
 #include <dbuscc/interface.h>
 #include <dbuscc/member.h>
+#include <dbuscc/bus-name.h>
 #include <dbuscc/signal-message.h>
+#include <dbuscc/call-message.h>
+#include <dbuscc/pending-call.h>
 
 #include <tscb/dispatch>
 #include <tscb/ioready>
@@ -177,14 +180,36 @@ public:
 
 }
 
+void on_hello_reply(dbuscc::pending_call_ptr const& reply)
+{
+	std::cerr << __PRETTY_FUNCTION__ << "\n";
+	if (reply->reply_error()) {
+		std::cerr << "got error:" << reply->reply_error().name() << "\n";
+	} else {
+		std::cerr << "Success\n";
+	}
+}
+
 int main()
 {
 	tscb::posix_reactor reactor;
 	dbuscc::bus_ptr dbus(dbuscc::bus::create());
 	dbuscc::error err;
 	dbuscc::connection_ptr conn(
-		dbus->open(dbuscc::bus::TYPE_SESSION, err));
+		dbus->open_private(dbuscc::session_bus_address(), err));
 	dbuscc::tscb_adapter adapter(reactor, conn);
+
+	dbuscc::call_message_ptr hello(
+		dbuscc::call_message::create(
+			dbuscc::bus_name("org.freedesktop.DBus"),
+			dbuscc::object_path("/org/freedesktop/DBus"),
+			dbuscc::interface("org.freedesktop.DBus"),
+			dbuscc::member("Hello")));
+	dbuscc::pending_call_ptr hello_reply(conn->call(hello));
+	hello_reply->on_completion().connect(boost::bind(
+		on_hello_reply, hello_reply));
+
+	/*
 
 	dbuscc::message_ptr msg(
 		dbuscc::signal_message::create(
@@ -196,13 +221,7 @@ int main()
 		return 1;
 	}
 
-	if (!conn->send(msg)) {
-		return 1;
-	}
-
-	if (!conn->send(msg)) {
-		return 1;
-	}
+	*/
 
 	for (;;) {
 		reactor.dispatch();
