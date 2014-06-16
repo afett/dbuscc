@@ -10,6 +10,8 @@
 #include <dbuscc/signal-message.h>
 #include <dbuscc/call-message.h>
 #include <dbuscc/pending-call.h>
+#include <dbuscc/message-reader.h>
+#include <dbuscc/return-message.h>
 
 #include <tscb/dispatch>
 #include <tscb/ioready>
@@ -186,7 +188,15 @@ void on_hello_reply(dbuscc::pending_call_ptr const& reply)
 	if (reply->reply_error()) {
 		std::cerr << "got error:" << reply->reply_error().name() << "\n";
 	} else {
-		std::cerr << "Success\n";
+		std::cerr << "Success:\n";
+		dbuscc::return_message_ptr reply_msg(reply->reply());
+		dbuscc::message_reader r(reply_msg->create_reader());
+		std::string unique_name;
+		if (r.pop_string(unique_name)) {
+			std::cerr << "out name is:" << unique_name << "\n";
+		} else {
+			std::cerr << "failed to get return value\n";
+		}
 	}
 }
 
