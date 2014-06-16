@@ -6,6 +6,10 @@ The API may^Wwill change and about anything might be broken.
 This lib depends on libdbus, boost/smart_pointer, boost/atomics
 and on either libtscb, boost/signals2 or boost/function
 
+There are two Interfaces, the regular one found in dbuscc
+which is free of any libdbus includes and the dbuscc::glue
+interface which lets you access the raw libdbus pointers.
+
 dbuscc is released under the following license:
 
 Copyright (c) 2014 Andreas Fett.
