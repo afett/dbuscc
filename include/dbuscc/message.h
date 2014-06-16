@@ -36,6 +36,7 @@ namespace dbuscc {
 class message : public ref_counter<message> {
 public:
 	virtual ~message() {}
+	virtual message_reader create_reader() = 0;
 	virtual message_writer create_writer() = 0;
 	virtual glue::message & glue() = 0;
 };

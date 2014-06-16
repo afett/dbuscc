@@ -63,6 +63,9 @@ public:
 	// FIXME this will trigger an assert
 	virtual message_writer create_writer()
 	{ return message_writer(message_ptr()); }
+
+	virtual message_reader create_reader()
+	{ return message_reader(message_ptr()); }
 };
 
 class return_message : public base<dbuscc::return_message, glue::message> {
@@ -70,6 +73,9 @@ public:
 	// FIXME this will trigger an assert
 	virtual message_writer create_writer()
 	{ return message_writer(message_ptr()); }
+
+	virtual message_reader create_reader()
+	{ return message_reader(message_ptr()); }
 };
 
 class signal_message : public base<dbuscc::signal_message, glue::message> {
@@ -77,6 +83,9 @@ public:
 	// FIXME this will trigger an assert
 	virtual message_writer create_writer()
 	{ return message_writer(message_ptr()); }
+
+	virtual message_reader create_reader()
+	{ return message_reader(message_ptr()); }
 };
 
 class pending_call : public base<dbuscc::pending_call, glue::pending_call> {

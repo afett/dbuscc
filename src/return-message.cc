@@ -27,6 +27,7 @@
 */
 
 #include <dbuscc/glue/message.h>
+#include <dbuscc/glue/message-reader.h>
 #include <dbuscc/glue/message-writer.h>
 
 #include "xassert.h"
@@ -41,6 +42,7 @@ class return_message :
 public:
 	return_message(DBusMessage *);
 	~return_message();
+	message_reader create_reader();
 	message_writer create_writer();
 	glue::message & glue();
 	DBusMessage *raw();
@@ -61,9 +63,14 @@ return_message::~return_message()
 	dbus_message_unref(raw_);
 }
 
+message_reader return_message::create_reader()
+{
+	return message_reader(this);
+}
+
 message_writer return_message::create_writer()
 {
-	return message_writer(message_ptr(this));
+	return message_writer(this);
 }
 
 glue::message & return_message::glue()

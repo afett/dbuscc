@@ -27,6 +27,7 @@
 */
 
 #include <dbuscc/glue/message.h>
+#include <dbuscc/glue/message-reader.h>
 #include <dbuscc/glue/message-writer.h>
 #include <dbuscc/object-path.h>
 #include <dbuscc/interface.h>
@@ -44,6 +45,7 @@ class signal_message :
 public:
 	signal_message(DBusMessage *);
 	~signal_message();
+	message_reader create_reader();
 	message_writer create_writer();
 	glue::message & glue();
 	DBusMessage *raw();
@@ -62,6 +64,11 @@ signal_message::signal_message(DBusMessage *raw)
 signal_message::~signal_message()
 {
 	dbus_message_unref(raw_);
+}
+
+message_reader signal_message::create_reader()
+{
+	return message_reader(message_ptr(this));
 }
 
 message_writer signal_message::create_writer()

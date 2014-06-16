@@ -27,6 +27,7 @@
 */
 
 #include <dbuscc/glue/message.h>
+#include <dbuscc/glue/message-reader.h>
 #include <dbuscc/glue/message-writer.h>
 #include <dbuscc/bus-name.h>
 #include <dbuscc/object-path.h>
@@ -45,6 +46,7 @@ class call_message :
 public:
 	call_message(DBusMessage *);
 	~call_message();
+	message_reader create_reader();
 	message_writer create_writer();
 	glue::message & glue();
 	DBusMessage *raw();
@@ -63,6 +65,11 @@ call_message::call_message(DBusMessage *raw)
 call_message::~call_message()
 {
 	dbus_message_unref(raw_);
+}
+
+message_reader call_message::create_reader()
+{
+	return message_reader(this);
 }
 
 message_writer call_message::create_writer()
