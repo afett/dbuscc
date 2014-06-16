@@ -5,6 +5,7 @@
 #include <dbuscc/call-message.h>
 #include <dbuscc/return-message.h>
 #include <dbuscc/signal-message.h>
+#include <dbuscc/message-reader.h>
 #include <dbuscc/message-writer.h>
 #include <dbuscc/pending-call.h>
 #include <dbuscc/timeout.h>

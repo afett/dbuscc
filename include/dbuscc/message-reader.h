@@ -26,45 +26,40 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DBUSCC_FORWARD_H
-#define DBUSCC_FORWARD_H
+#ifndef DBUSCC_MESSAGE_READER_H
+#define DBUSCC_MESSAGE_READER_H
+
+#include <stdint.h>
+#include <string>
+#include <dbuscc/pointer.h>
 
 namespace dbuscc {
 
-class bus;
-class error;
-class connection;
-class watch;
-class timeout;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_reader;
-class message_writer;
-class object_path;
-class interface;
-class bus_name;
-class member;
+class message_reader {
+public:
+	message_reader(message_ptr const&);
+	message_reader(message_reader const&);
+	message_reader & operator=(message_reader const&);
+	~message_reader();
 
-namespace glue {
+	bool pop_uint8(uint8_t &);
+	bool pop_bool(bool &);
+	bool pop_int16(int16_t &);
+	bool pop_uint16(uint16_t &);
+	bool pop_int32(int32_t &);
+	bool pop_uint32(uint32_t &);
+	bool pop_int64(int64_t &);
+	bool pop_uint64(uint64_t &);
+	bool pop_double(double &);
+	bool pop_string(std::string &);
+	bool pop_object_path(object_path &);
 
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_reader;
-class message_writer;
-class watch;
-class timeout;
+	glue::message_reader & glue() const;
 
-}
+private:
+	message_ptr msg_;
+	DBUSCC_SCOPED_PTR(glue::message_reader) impl_;
+};
 
 }
 

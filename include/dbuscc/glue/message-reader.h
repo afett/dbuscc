@@ -25,47 +25,34 @@
 	ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
+#ifndef DBUSCC_GLUE_MESSAGE_READER_H
+#define DBUSCC_GLUE_MESSAGE_READER_H
 
-#ifndef DBUSCC_FORWARD_H
-#define DBUSCC_FORWARD_H
+#include <dbus/dbus.h>
+
+// not required here but it's usually needed
+#include <dbuscc/message-reader.h>
 
 namespace dbuscc {
-
-class bus;
-class error;
-class connection;
-class watch;
-class timeout;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_reader;
-class message_writer;
-class object_path;
-class interface;
-class bus_name;
-class member;
-
 namespace glue {
 
-class error;
-class connection;
-class message;
-class error_message;
-class signal_message;
-class call_message;
-class return_message;
-class pending_call;
-class message_reader;
-class message_writer;
-class watch;
-class timeout;
+class message_reader {
+public:
+	message_reader(DBusMessage *);
+	~message_reader();
 
-}
+	bool get_basic(int, void*);
 
-}
+	DBusMessageIter *raw()
+	{
+		return &raw_;
+	}
+
+private:
+	DBusMessage *msg_;
+	DBusMessageIter raw_;
+};
+
+}}
 
 #endif
