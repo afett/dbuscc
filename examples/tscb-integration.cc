@@ -60,6 +60,8 @@ public:
 		ctx->watch = watch;
 		watch->on_change().connect(boost::bind(
 			&tscb_adapter::on_watch_change, this, ctx));
+		watch->on_remove().connect(boost::bind(
+			&tscb_adapter::on_watch_remove, this, ctx));
 		reactor_.post(boost::bind(
 			&tscb_adapter::on_watch_change, this, ctx));
 	}
@@ -71,6 +73,8 @@ public:
 		ctx->timeout = timeout;
 		timeout->on_change().connect(boost::bind(
 			&tscb_adapter::on_timeout_change, this, ctx));
+		timeout->on_remove().connect(boost::bind(
+			&tscb_adapter::on_timeout_remove, this, ctx));
 		reactor_.post(boost::bind(
 			&tscb_adapter::on_timeout_change, this, ctx));
 	}
@@ -97,6 +101,13 @@ public:
 				boost::bind(&tscb_adapter::on_io_ready, this, ctx->watch, _1),
 				ctx->watch->fd(), events);
 		}
+	}
+
+	void on_watch_remove(boost::shared_ptr<io_ctx> const& ctx)
+	{
+		TRACE();
+		ctx->conn.disconnect();
+		ctx->watch.reset();
 	}
 
 	void on_io_ready(dbuscc::watch_ptr const& watch, tscb::ioready_events events)
@@ -126,9 +137,16 @@ public:
 			boost::posix_time::ptime when(tscb::monotonic_time() +
 				boost::posix_time::milliseconds(ctx->timeout->ms_interval()));
 
-			reactor_.timer(boost::bind(
+			ctx->conn = reactor_.timer(boost::bind(
 				&tscb_adapter::on_timer, this, _1, ctx->timeout), when);
 		}
+	}
+
+	void on_timeout_remove(boost::shared_ptr<timer_ctx> const& ctx)
+	{
+		TRACE();
+		ctx->conn.disconnect();
+		ctx->timeout.reset();
 	}
 
 	bool on_timer(boost::posix_time::ptime & now, dbuscc::timeout_ptr const& timeout)
