@@ -4,7 +4,7 @@ WARNING: this is still an experimental prototype
 The API may^Wwill change and about anything might be broken.
 
 This lib depends on libdbus, boost/smart_pointer, boost/atomics
-and optionally on libtscb or boost/signals2
+and on either libtscb, boost/signals2 or boost/function
 
 dbuscc is released under the following license:
 
