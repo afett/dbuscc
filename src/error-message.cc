@@ -62,6 +62,7 @@ error_message::error_message(DBusMessage *raw)
 error_message::~error_message()
 {
 	dbus_message_unref(raw_);
+	raw_ = 0;
 }
 
 message_reader error_message::create_reader()

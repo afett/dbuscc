@@ -64,6 +64,7 @@ signal_message::signal_message(DBusMessage *raw)
 signal_message::~signal_message()
 {
 	dbus_message_unref(raw_);
+	raw_ = 0;
 }
 
 message_reader signal_message::create_reader()

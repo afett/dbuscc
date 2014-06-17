@@ -40,6 +40,7 @@ class watch :
 public:
 	watch(DBusWatch *);
 	static watch_ptr from_raw(DBusWatch *);
+	~watch();
 
 	DBUSCC_SIGNAL(void(void)) & on_change();
 	DBUSCC_SIGNAL(void(void)) & on_remove();
@@ -86,6 +87,11 @@ watch::watch(DBusWatch *raw)
 	DBUSCC_ASSERT(raw_);
 	intrusive_ptr_add_ref(this);
 	dbus_watch_set_data(raw_, this, &watch::unref);
+}
+
+watch::~watch()
+{
+	raw_ = 0;
 }
 
 glue::watch & watch::glue()

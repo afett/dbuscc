@@ -40,6 +40,7 @@ class timeout :
 public:
 	timeout(DBusTimeout *);
 	static timeout_ptr from_raw(DBusTimeout *);
+	~timeout();
 
 	DBUSCC_SIGNAL(void(void)) & on_change();
 	DBUSCC_SIGNAL(void(void)) & on_remove();
@@ -85,6 +86,11 @@ timeout::timeout(DBusTimeout *raw)
 	DBUSCC_ASSERT(raw_);
 	intrusive_ptr_add_ref(this);
 	dbus_timeout_set_data(raw_, this, &timeout::unref);
+}
+
+timeout::~timeout()
+{
+	raw_ = 0;
 }
 
 glue::timeout & timeout::glue()

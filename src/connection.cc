@@ -321,6 +321,7 @@ DBUSCC_SIGNAL(void(connection::DispatchState)) & connection::on_dispatch_state()
 connection::~connection()
 {
 	dbus_connection_unref(raw_);
+	raw_ = 0;
 }
 
 glue::connection & connection::glue()

@@ -65,6 +65,7 @@ call_message::call_message(DBusMessage *raw)
 call_message::~call_message()
 {
 	dbus_message_unref(raw_);
+	raw_ = 0;
 }
 
 message_reader call_message::create_reader()

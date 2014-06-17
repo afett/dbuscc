@@ -84,6 +84,7 @@ pending_call::~pending_call()
 	// cancel the call so that libdbus yields its reference.
 	cancel();
 	dbus_pending_call_unref(raw_);
+	raw_ = 0;
 }
 
 void pending_call::cancel()

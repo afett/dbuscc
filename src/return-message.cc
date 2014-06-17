@@ -61,6 +61,7 @@ return_message::return_message(DBusMessage *raw)
 return_message::~return_message()
 {
 	dbus_message_unref(raw_);
+	raw_ = 0;
 }
 
 message_reader return_message::create_reader()
