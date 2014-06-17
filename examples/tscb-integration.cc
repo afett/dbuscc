@@ -210,7 +210,7 @@ public:
 
 }
 
-void on_hello_reply(dbuscc::pending_call_ptr const& reply)
+void on_hello_reply(dbuscc::pending_call_ptr const& reply, bool & stop)
 {
 	std::cerr << __PRETTY_FUNCTION__ << "\n";
 	if (reply->reply_error()) {
@@ -226,6 +226,8 @@ void on_hello_reply(dbuscc::pending_call_ptr const& reply)
 			std::cerr << "failed to get return value\n";
 		}
 	}
+
+	stop = true;
 }
 
 int main()
@@ -244,8 +246,10 @@ int main()
 			dbuscc::interface("org.freedesktop.DBus"),
 			dbuscc::member("Hello")));
 	dbuscc::pending_call_ptr hello_reply(conn->call(hello));
+
+	bool stop(false);
 	hello_reply->on_completion().connect(boost::bind(
-		on_hello_reply, hello_reply));
+		on_hello_reply, hello_reply, boost::ref(stop)));
 
 	/*
 
@@ -261,7 +265,7 @@ int main()
 
 	*/
 
-	for (;;) {
+	while(!stop) {
 		reactor.dispatch();
 	}
 
