@@ -248,8 +248,8 @@ int main()
 	dbuscc::pending_call_ptr hello_reply(conn->call(hello));
 
 	bool stop(false);
-	hello_reply->on_completion().connect(boost::bind(
-		on_hello_reply, hello_reply, boost::ref(stop)));
+	tscb::scoped_connection c(hello_reply->on_completion().connect(boost::bind(
+		on_hello_reply, hello_reply, boost::ref(stop))));
 
 	/*
 
