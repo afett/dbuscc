@@ -115,15 +115,17 @@ void pending_call::notify()
 	if (dbus_set_error_from_message(error_.glue().raw(), raw_reply)) {
 		state_ = (error_.type() == error::TYPE_NO_REPLY) ?
 			STATE_TIMEOUT : STATE_ERROR;
+		dbus_message_unref(raw_reply);
 	} else if (dbus_message_get_type(raw_reply) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
 		reply_message_ = glue::message::create_return(raw_reply);
+	} else {
+		// the dbus api docs say we must handle all
+		// message types gracefully. so we'll just call
+		// notify an do not deliver a reply if it's not
+		// an error or a method return.
+		dbus_message_unref(raw_reply);
 	}
-	// the dbus api docs say we must handle all
-	// message types gracefully. so we'll just call
-	// notify an do not deliver a reply if it's not
-	// an error or a method return.
 	state_ = STATE_COMPLETED;
-	dbus_message_unref(raw_reply);
 	on_completion_();
 }
 
