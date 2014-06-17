@@ -69,7 +69,7 @@ protected:
 	{ }
 
 	ref_counter & operator=(ref_counter const&)
-	{ }
+	{ return *this; }
 
 	~ref_counter()
 	{ }
