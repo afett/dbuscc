@@ -62,14 +62,17 @@ public:
 		dbuscc::connection_ptr const& conn)
 	:
 		reactor_(reactor),
-		conn_(conn)
+		conn_(conn),
+		watch_conn_(),
+		timeout_conn_(),
+		dispatch_conn_()
 	{
 		/* see documentation in the dbuscc/connection header */
-		conn_->on_watch_add().connect(
+		watch_conn_ = conn_->on_watch_add().connect(
 			boost::bind(&tscb_adapter::on_watch_add, this, _1));
-		conn_->on_timeout_add().connect(
+		timeout_conn_ = conn_->on_timeout_add().connect(
 			boost::bind(&tscb_adapter::on_timeout_add, this, _1));
-		conn_->on_dispatch_state().connect(
+		dispatch_conn_ = conn_->on_dispatch_state().connect(
 			boost::bind(&tscb_adapter::on_dispatch_state, this, _1));
 		conn_->install_handlers();
 
@@ -79,11 +82,27 @@ public:
 	struct io_ctx {
 		dbuscc::watch_ptr watch;
 		tscb::ioready_connection conn;
+		tscb::connection change_conn;
+		tscb::connection remove_conn;
+
+		~io_ctx()
+		{
+			change_conn.disconnect();
+			remove_conn.disconnect();
+		}
 	};
 
 	struct timer_ctx {
 		dbuscc::timeout_ptr timeout;
 		tscb::timer_connection conn;
+		tscb::connection change_conn;
+		tscb::connection remove_conn;
+
+		~timer_ctx()
+		{
+			change_conn.disconnect();
+			remove_conn.disconnect();
+		}
 	};
 
 	void on_watch_add(dbuscc::watch_ptr const& watch)
@@ -91,9 +110,9 @@ public:
 		TRACE();
 		boost::shared_ptr<io_ctx> ctx(new io_ctx);
 		ctx->watch = watch;
-		watch->on_change().connect(boost::bind(
+		ctx->change_conn = watch->on_change().connect(boost::bind(
 			&tscb_adapter::on_watch_change, this, ctx));
-		watch->on_remove().connect(boost::bind(
+		ctx->remove_conn = watch->on_remove().connect(boost::bind(
 			&tscb_adapter::on_watch_remove, this, ctx));
 		reactor_.post(boost::bind(
 			&tscb_adapter::on_watch_change, this, ctx));
@@ -104,9 +123,9 @@ public:
 		TRACE();
 		boost::shared_ptr<timer_ctx> ctx(new timer_ctx);
 		ctx->timeout = timeout;
-		timeout->on_change().connect(boost::bind(
+		ctx->change_conn = timeout->on_change().connect(boost::bind(
 			&tscb_adapter::on_timeout_change, this, ctx));
-		timeout->on_remove().connect(boost::bind(
+		ctx->remove_conn = timeout->on_remove().connect(boost::bind(
 			&tscb_adapter::on_timeout_remove, this, ctx));
 		reactor_.post(boost::bind(
 			&tscb_adapter::on_timeout_change, this, ctx));
@@ -204,8 +223,18 @@ public:
 		on_dispatch_state(conn_->dispatch());
 	}
 
+	~tscb_adapter()
+	{
+		watch_conn_.disconnect();
+		timeout_conn_.disconnect();
+		dispatch_conn_.disconnect();
+	}
+
 	tscb::posix_reactor_service & reactor_;
 	dbuscc::connection_ptr conn_;
+	tscb::connection watch_conn_;
+	tscb::connection timeout_conn_;
+	tscb::connection dispatch_conn_;
 };
 
 }
