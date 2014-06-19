@@ -59,6 +59,7 @@ public:
 	connection_ptr open_private(std::string const&, error &);
 	connection_ptr open(Type, error &);
 	connection_ptr open_private(Type, error &);
+	~bus();
 };
 
 connection_ptr
@@ -95,6 +96,11 @@ bus::open_private(Type bus, error & e)
 		dbus_bus_get_private(::bus_type(bus), glue::err(e)));
 	return !conn ? connection_ptr() :
 		glue::connection::create_private(conn);
+}
+
+bus::~bus()
+{
+	dbus_shutdown();
 }
 
 } // namespace internal
