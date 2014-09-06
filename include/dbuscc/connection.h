@@ -42,6 +42,8 @@ public:
 		DISPATCH_NEED_MEMORY,
 	};
 
+	static std::ostream & print(std::ostream &, DispatchState);
+
 	virtual ~connection() {}
 	virtual void close() = 0;
 	virtual bool send(message_ptr const&) = 0;
@@ -71,6 +73,11 @@ public:
 
 	virtual glue::connection & glue() = 0;
 };
+
+inline std::ostream & operator<<(std::ostream & os, connection::DispatchState state)
+{
+	return connection::print(os, state);
+}
 
 }
 

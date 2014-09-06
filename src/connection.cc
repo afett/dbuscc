@@ -26,6 +26,8 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <iostream>
+
 #include <dbuscc/glue/connection.h>
 #include <dbuscc/glue/message.h>
 #include <dbuscc/glue/pending-call.h>
@@ -351,4 +353,16 @@ connection::create_shared(DBusConnection *raw)
 	return connection_ptr(new internal::shared_connection(raw));
 }
 
-}}
+}
+
+std::ostream & connection::print(std::ostream & os, DispatchState state)
+{
+	switch (state) {
+	case DISPATCH_DATA_REMAINS: os << "DISPATCH_DATA_REMAINS"; break;
+	case DISPATCH_COMPLETE:     os << "DISPATCH_COMPLETE"; break;
+	case DISPATCH_NEED_MEMORY:  os << "DISPATCH_NEED_MEMORY"; break;
+	}
+	return os;
+}
+
+}
