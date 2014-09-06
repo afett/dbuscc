@@ -3,3 +3,4 @@
 *.so
 test_*
 tscb-integration
+.clang_complete
