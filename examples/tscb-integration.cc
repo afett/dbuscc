@@ -42,6 +42,7 @@
 #include <dbuscc/tscb/adapter.h>
 #include <tscb/dispatch>
 
+#include <iostream>
 #include <boost/bind.hpp>
 
 void on_hello_reply(dbuscc::pending_call_ptr const& reply, bool & stop)
