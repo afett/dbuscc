@@ -1,7 +1,7 @@
 DBUSCC_DEBUG = 1
 
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror
+CXXFLAGS = -Wall -Wextra -Werror -std=c++03
 LDFLAGS = -L.
 CPPFLAGS = -Iinclude
 
